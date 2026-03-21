@@ -16,10 +16,14 @@ body{min-height:100vh;background:linear-gradient(160deg,#f5f8ff 0%,#fff0f8 50%,#
 .upload-icon{font-size:2rem;margin-bottom:6px;}
 .upload-text{font-size:0.85rem;color:#c0a0b8;}
 .upload-btn{margin-top:10px;background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:14px;padding:8px 20px;color:white;font-size:0.85rem;cursor:pointer;font-family:inherit;}
+.hint-tip{text-align:center;font-size:0.72rem;color:#c0b0d0;margin:-8px 16px 10px;}
 .masonry{columns:2;column-gap:10px;padding:0 16px 40px;}
-.photo-item{break-inside:avoid;margin-bottom:10px;border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(200,150,200,0.15);cursor:pointer;position:relative;background:rgba(255,255,255,0.5);}
-.photo-item img{width:100%;display:block;border-radius:16px;}
-.photo-del{position:absolute;top:6px;right:6px;background:rgba(255,100,100,0.75);border:none;border-radius:8px;padding:3px 7px;color:white;font-size:0.7rem;cursor:pointer;}
+.photo-item{break-inside:avoid;margin-bottom:10px;border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(200,150,200,0.15);cursor:pointer;position:relative;background:rgba(255,255,255,0.5);user-select:none;}
+.photo-item img{width:100%;display:block;border-radius:16px;pointer-events:none;}
+.photo-del-overlay{display:none;position:absolute;inset:0;background:rgba(255,80,80,0.18);border-radius:16px;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.photo-del-overlay.show{display:flex;}
+.del-confirm-btn{background:rgba(220,60,60,0.88);border:none;border-radius:12px;padding:8px 20px;color:white;font-size:0.82rem;cursor:pointer;font-family:inherit;}
+.del-cancel-btn{background:rgba(255,255,255,0.88);border:none;border-radius:12px;padding:8px 20px;color:#604060;font-size:0.82rem;cursor:pointer;font-family:inherit;}
 .empty{text-align:center;color:#d0a0c0;padding:50px 20px;font-size:0.88rem;}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;}
 .lightbox.open{display:flex;}
@@ -38,6 +42,7 @@ body{min-height:100vh;background:linear-gradient(160deg,#f5f8ff 0%,#fff0f8 50%,#
   <div class="upload-text">点击上传图片</div>
   <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">+ 添加照片</button>
 </div>
+<p class="hint-tip">长按照片可以删除</p>
 <div class="masonry" id="masonry"></div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <img id="lightboxImg" src="" alt="">
@@ -46,16 +51,50 @@ body{min-height:100vh;background:linear-gradient(160deg,#f5f8ff 0%,#fff0f8 50%,#
 <script>
 function loadPhotos(){let d=localStorage.getItem('photos');return d?JSON.parse(d):[];}
 function savePhotos(d){localStorage.setItem('photos',JSON.stringify(d));}
+
+let longPressTimer=null;
+
 function render(){
   const photos=loadPhotos();const el=document.getElementById('masonry');el.innerHTML='';
   if(photos.length===0){el.innerHTML='<div class="empty">相册空空的～上传一些美照吧 📷</div>';return;}
   [...photos].reverse().forEach((p,ri)=>{
-    const i=photos.length-1-ri;
-    el.innerHTML+=`<div class="photo-item">
-      <img src="${p.data}" onclick="openLightbox('${p.data}')" alt="photo">
-      <button class="photo-del" onclick="event.stopPropagation();delPhoto(${photos.length-1-ri})">✕</button>
-    </div>`;
+    const realIdx=photos.length-1-ri;
+    const item=document.createElement('div');
+    item.className='photo-item';
+    item.innerHTML=`<img src="${p.data}" alt="photo">
+      <div class="photo-del-overlay" id="overlay_${realIdx}">
+        <button class="del-confirm-btn" onclick="event.stopPropagation();delPhoto(${realIdx})">删除</button>
+        <button class="del-cancel-btn" onclick="event.stopPropagation();hideOverlay(${realIdx})">取消</button>
+      </div>`;
+    // 点击查看大图（只有没显示删除框时）
+    item.addEventListener('click',()=>{
+      const ov=document.getElementById('overlay_'+realIdx);
+      if(ov&&ov.classList.contains('show'))return;
+      openLightbox(p.data);
+    });
+    // 长按显示删除
+    item.addEventListener('touchstart',()=>{
+      longPressTimer=setTimeout(()=>{
+        const ov=document.getElementById('overlay_'+realIdx);
+        if(ov)ov.classList.add('show');
+      },500);
+    },{passive:true});
+    item.addEventListener('touchend',()=>{clearTimeout(longPressTimer);},{passive:true});
+    item.addEventListener('touchmove',()=>{clearTimeout(longPressTimer);},{passive:true});
+    // 鼠标长按（PC端）
+    item.addEventListener('mousedown',()=>{
+      longPressTimer=setTimeout(()=>{
+        const ov=document.getElementById('overlay_'+realIdx);
+        if(ov)ov.classList.add('show');
+      },500);
+    });
+    item.addEventListener('mouseup',()=>{clearTimeout(longPressTimer);});
+    el.appendChild(item);
   });
+}
+function hideOverlay(i){
+  const ov=document.getElementById('overlay_'+i);
+  if(ov)ov.classList.remove('show');
 }
 function handleUpload(e){
   const files=Array.from(e.target.files);

@@ -58,14 +58,22 @@ const PRIZES=[
   {label:'10币',value:10,color:'#d8f0ff',comment:'10个！稳稳当当！'},
 ];
 const TOTAL=PRIZES.length;
+const arc=2*Math.PI/TOTAL;
 function getBalance(){return parseInt(localStorage.getItem('starCoins')||'0');}
 function addBalance(v){localStorage.setItem('starCoins',String(getBalance()+v));}
 function getTodayKey(){const n=new Date();return 'lucky_'+n.getFullYear()+'_'+n.getMonth()+'_'+n.getDate();}
+
+// 指针在顶部（-Math.PI/2），转盘从angle=0开始绘制
+// 当转盘旋转angle后，顶部对应的扇区索引：idx = floor((-angle + PI/2) / arc) % TOTAL
+function getIdxAtPointer(angle){
+  const norm = ((-angle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+  return Math.floor(norm/arc) % TOTAL;
+}
+
 function drawWheel(angle){
   const canvas=document.getElementById('wheel');
   const ctx=canvas.getContext('2d');
   const cx=140,cy=140,r=130;
-  const arc=2*Math.PI/TOTAL;
   ctx.clearRect(0,0,280,280);
   PRIZES.forEach((p,i)=>{
     ctx.beginPath();
@@ -86,13 +94,13 @@ function drawWheel(angle){
     ctx.fillText(p.label,r-12,5);
     ctx.restore();
   });
-  // 中心圆
   ctx.beginPath();ctx.arc(cx,cy,22,0,2*Math.PI);
   ctx.fillStyle='white';ctx.fill();
   ctx.strokeStyle='rgba(247,180,210,0.5)';ctx.lineWidth=3;ctx.stroke();
   ctx.fillStyle='#f7a8c9';ctx.font='16px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText('✦',cx,cy);
 }
+
 let currentAngle=0;
 drawWheel(currentAngle);
 document.getElementById('balanceVal').textContent=getBalance();
@@ -100,18 +108,21 @@ if(localStorage.getItem(getTodayKey())){
   document.getElementById('spinBtn').disabled=true;
   document.getElementById('spinBtn').textContent='明天再来 ✦';
 }
+
 function spin(){
   if(localStorage.getItem(getTodayKey()))return;
   const btn=document.getElementById('spinBtn');btn.disabled=true;
-  // 随机决定奖品
   const idx=Math.floor(Math.random()*TOTAL);
   const prize=PRIZES[idx];
-  // 计算目标角度：让idx指向顶部指针
-  const arc=2*Math.PI/TOTAL;
-  const targetSectorAngle=-(arc*idx+arc/2)+Math.PI/2; // 让中间对准顶部（-Math.PI/2）
-  // 多转几圈
+  // 让idx扇区中心对准顶部指针
+  // 扇区idx中心角度（在转盘坐标系中）= arc*idx + arc/2
+  // 要让它转到顶部(-PI/2)，需要的最终angle满足：angle + arc*idx + arc/2 = -PI/2 + 2k*PI
+  // 即 targetAngle = -PI/2 - arc*idx - arc/2
   const spins=5+Math.floor(Math.random()*3);
-  const targetAngle=currentAngle+spins*2*Math.PI+(targetSectorAngle-currentAngle%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const baseTarget=-Math.PI/2-arc*idx-arc/2;
+  // 从currentAngle出发，加够整圈
+  const diff=((baseTarget-currentAngle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const targetAngle=currentAngle+spins*2*Math.PI+diff;
   const duration=4000;
   const startAngle=currentAngle;
   const startTime=performance.now();
@@ -124,13 +135,16 @@ function spin(){
     if(t<1){requestAnimationFrame(animate);}
     else{
       currentAngle=targetAngle;
-      // 显示结果
-      addBalance(prize.value);
+      drawWheel(currentAngle);
+      // 验证实际对准的扇区
+      const actualIdx=getIdxAtPointer(currentAngle);
+      const actualPrize=PRIZES[actualIdx];
+      addBalance(actualPrize.value);
       localStorage.setItem(getTodayKey(),'1');
       document.getElementById('balanceVal').textContent=getBalance();
-      document.getElementById('resultCoin').textContent='💰 +'+prize.value+' 星星币';
-      document.getElementById('resultTitle').textContent='恭喜获得 '+prize.label+'！';
-      document.getElementById('resultComment').textContent=prize.comment;
+      document.getElementById('resultCoin').textContent='💰 +'+actualPrize.value+' 星星币';
+      document.getElementById('resultTitle').textContent='恭喜获得 '+actualPrize.label+'！';
+      document.getElementById('resultComment').textContent=actualPrize.comment;
       document.getElementById('resultBox').classList.add('show');
       btn.textContent='明天再来 ✦';
     }

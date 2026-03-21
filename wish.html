@@ -37,7 +37,10 @@ body{min-height:100vh;background:linear-gradient(160deg,#fff8e0 0%,#fff0f8 50%,#
 .idea-input-box textarea{width:100%;border:1.5px solid rgba(180,160,220,0.4);border-radius:14px;padding:10px 14px;font-size:0.9rem;font-family:inherit;color:#604060;background:rgba(250,248,255,0.9);resize:none;outline:none;height:60px;}
 .idea-add-btn{width:100%;margin-top:8px;background:linear-gradient(135deg,#c8a0f8,#a080e0);border:none;border-radius:14px;padding:10px;color:white;font-size:0.9rem;cursor:pointer;font-family:inherit;}
 .idea-result{background:rgba(255,255,255,0.9);border-radius:18px;padding:16px;margin-top:12px;text-align:center;border:1.5px dashed rgba(180,160,220,0.4);min-height:60px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;color:#7050a0;line-height:1.7;}
-/* 烟花 */
+.idea-list{margin-top:14px;}
+.idea-item{background:rgba(255,255,255,0.82);border-radius:14px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(180,140,220,0.1);}
+.idea-text{flex:1;font-size:0.88rem;color:#604060;line-height:1.5;}
+.idea-del{background:rgba(255,220,220,0.7);border:none;border-radius:8px;padding:4px 10px;font-size:0.72rem;color:#e06060;cursor:pointer;font-family:inherit;flex-shrink:0;}
 .firework{position:fixed;pointer-events:none;z-index:999;font-size:1.5rem;animation:fw 1s ease-out forwards;}
 @keyframes fw{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-80px) scale(0.5);}}
 </style>
@@ -70,7 +73,7 @@ body{min-height:100vh;background:linear-gradient(160deg,#fff8e0 0%,#fff0f8 50%,#
     <textarea id="ideaInput" placeholder="存入新灵感..."></textarea>
     <button class="idea-add-btn" onclick="addIdea()">💜 存入灵感瓶</button>
   </div>
-  <div id="ideaList"></div>
+  <div class="idea-list" id="ideaList"></div>
 </div>
 
 <script>
@@ -84,8 +87,7 @@ function renderWishes(){
   if(list.length===0){el.innerHTML='<div style="text-align:center;color:#d0a0c0;padding:30px;font-size:0.88rem;">许愿池空空的，快来许愿吧 ✨</div>';return;}
   [...list].reverse().forEach((w,ri)=>{
     const i=list.length-1-ri;
-    const enc=!w.done?`<div class="encourage">${ENCOURAGES[i%ENCOURAGES.length]}</div>`:'';
-    el.innerHTML+=`<div class="wish-card${w.done?' done':''}">
+    const enc=!w.done?`<div class="encourage">${ENCOURAGES[i%ENCOURAGES.length]}</div>`:'';    el.innerHTML+=`<div class="wish-card${w.done?' done':''}">
       <div class="wish-text${w.done?' done-text':''}">${w.text}</div>
       <div class="wish-meta">
         <span class="wish-time">${w.time}</span>
@@ -93,6 +95,16 @@ function renderWishes(){
         <button class="del-btn" onclick="delWish(${i})">删除</button>
       </div>
       ${enc}
+    </div>`;
+  });
+}
+function renderIdeas(){
+  const ideas=loadIdeas();const el=document.getElementById('ideaList');el.innerHTML='';
+  if(ideas.length===0){el.innerHTML='<div style="text-align:center;color:#c0a0d8;padding:16px;font-size:0.82rem;">灵感瓶是空的，存点灵感进去吧 💜</div>';return;}
+  ideas.forEach((idea,i)=>{
+    el.innerHTML+=`<div class="idea-item">
+      <div class="idea-text">💡 ${idea}</div>
+      <button class="idea-del" onclick="delIdea(${i})">删除</button>
     </div>`;
   });
 }
@@ -108,6 +120,12 @@ function toggleDone(i){
   renderWishes();
 }
 function delWish(i){const d=loadWishes();d.splice(i,1);saveWishes(d);renderWishes();}
+function addIdea(){
+  const t=document.getElementById('ideaInput').value.trim();if(!t)return;
+  const d=loadIdeas();d.push(t);saveIdeas(d);
+  document.getElementById('ideaInput').value='';renderIdeas();
+}
+function delIdea(i){const d=loadIdeas();d.splice(i,1);saveIdeas(d);renderIdeas();}
 function fireworks(){
   const emojis=['🎉','✨','🌟','💛','🎊','⭐'];
   for(let i=0;i<12;i++){
@@ -127,16 +145,11 @@ function shakeBottle(){
   const idea=ideas[Math.floor(Math.random()*ideas.length)];
   document.getElementById('ideaResult').textContent='💡 '+idea;
 }
-function addIdea(){
-  const t=document.getElementById('ideaInput').value.trim();if(!t)return;
-  const d=loadIdeas();d.push(t);saveIdeas(d);
-  document.getElementById('ideaInput').value='';
-  alert('灵感已存入瓶子 💜');
-}
 function switchTab(id,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');btn.classList.add('active');
+  if(id==='bottle')renderIdeas();
 }
 renderWishes();
 </script>

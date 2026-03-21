@@ -7,15 +7,16 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{min-height:100vh;background:linear-gradient(160deg,#fff8f0 0%,#fff0f8 50%,#f0f0ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;display:flex;flex-direction:column;align-items:center;}
-.topbar{width:100%;display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+html,body{height:100%;overflow:hidden;touch-action:none;}
+body{height:100vh;background:linear-gradient(160deg,#fff8f0 0%,#fff0f8 50%,#f0f0ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;display:flex;flex-direction:column;align-items:center;}
+.topbar{width:100%;display:flex;align-items:center;padding:16px 18px 10px;gap:12px;flex-shrink:0;}
 .back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
 .topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
-.score-row{display:flex;gap:12px;margin-bottom:14px;}
+.score-row{display:flex;gap:12px;margin-bottom:14px;flex-shrink:0;}
 .score-box{background:rgba(255,255,255,0.85);border-radius:16px;padding:10px 20px;text-align:center;box-shadow:0 3px 12px rgba(200,150,200,0.1);min-width:90px;}
 .score-label{font-size:0.68rem;color:#c0a0b8;margin-bottom:2px;}
 .score-val{font-size:1.3rem;color:#604060;font-weight:bold;}
-.board{background:rgba(200,160,220,0.18);border-radius:18px;padding:8px;margin-bottom:16px;box-shadow:0 6px 24px rgba(200,150,200,0.18);}
+.board{background:rgba(200,160,220,0.18);border-radius:18px;padding:8px;margin-bottom:16px;box-shadow:0 6px 24px rgba(200,150,200,0.18);flex-shrink:0;}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .cell{width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#604060;background:rgba(255,255,255,0.4);transition:all 0.1s;}
 .c2{background:#ffefc0;}.c4{background:#ffdfa0;}.c8{background:#ffcf80;color:#fff;}
@@ -23,9 +24,9 @@ body{min-height:100vh;background:linear-gradient(160deg,#fff8f0 0%,#fff0f8 50%,#
 .c128{background:#f9a8c9;color:#fff;font-size:1.1rem;}.c256{background:#e060a0;color:#fff;font-size:1.1rem;}
 .c512{background:#c040a0;color:#fff;font-size:1rem;}.c1024{background:#a020a0;color:#fff;font-size:0.9rem;}
 .c2048{background:linear-gradient(135deg,#f7c948,#f9a8c9);color:#fff;font-size:0.85rem;}
-.btns{display:flex;gap:10px;margin-bottom:10px;}
+.btns{display:flex;gap:10px;margin-bottom:10px;flex-shrink:0;}
 .new-btn{background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:14px;padding:10px 24px;color:white;font-size:0.9rem;cursor:pointer;font-family:inherit;box-shadow:0 3px 12px rgba(249,168,201,0.3);}
-.hint{font-size:0.78rem;color:#c0a8c0;text-align:center;margin-bottom:6px;}
+.hint{font-size:0.78rem;color:#c0a8c0;text-align:center;margin-bottom:6px;flex-shrink:0;}
 .overlay{display:none;position:fixed;inset:0;background:rgba(255,240,248,0.88);z-index:99;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
 .overlay.show{display:flex;}
 .overlay-title{font-size:1.8rem;color:#c060a0;}
@@ -111,15 +112,22 @@ function checkEnd(){
   document.getElementById('overlayScore').textContent='最终得分：'+score+'  小星陪你继续加油！';
   document.getElementById('overlay').classList.add('show');
 }
-// 触摸
+// 触摸 - 阻止默认滚动
 let tx,ty;
-document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchstart',e=>{
+  tx=e.touches[0].clientX;ty=e.touches[0].clientY;
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('touchmove',e=>{
+  e.preventDefault();
+},{passive:false});
 document.addEventListener('touchend',e=>{
   const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
   if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
   if(Math.abs(dx)>Math.abs(dy))move(dx>0?'right':'left');
   else move(dy>0?'down':'up');
-},{passive:true});
+  e.preventDefault();
+},{passive:false});
 // 键盘
 document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft')move('left');
