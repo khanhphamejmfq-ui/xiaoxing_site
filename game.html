@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🎮 2048</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#fff8f0 0%,#fff0f8 50%,#f0f0ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;display:flex;flex-direction:column;align-items:center;}
+.topbar{width:100%;display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.score-row{display:flex;gap:12px;margin-bottom:14px;}
+.score-box{background:rgba(255,255,255,0.85);border-radius:16px;padding:10px 20px;text-align:center;box-shadow:0 3px 12px rgba(200,150,200,0.1);min-width:90px;}
+.score-label{font-size:0.68rem;color:#c0a0b8;margin-bottom:2px;}
+.score-val{font-size:1.3rem;color:#604060;font-weight:bold;}
+.board{background:rgba(200,160,220,0.18);border-radius:18px;padding:8px;margin-bottom:16px;box-shadow:0 6px 24px rgba(200,150,200,0.18);}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.cell{width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#604060;background:rgba(255,255,255,0.4);transition:all 0.1s;}
+.c2{background:#ffefc0;}.c4{background:#ffdfa0;}.c8{background:#ffcf80;color:#fff;}
+.c16{background:#ffaf60;color:#fff;}.c32{background:#ff8f50;color:#fff;}.c64{background:#ff6f40;color:#fff;}
+.c128{background:#f9a8c9;color:#fff;font-size:1.1rem;}.c256{background:#e060a0;color:#fff;font-size:1.1rem;}
+.c512{background:#c040a0;color:#fff;font-size:1rem;}.c1024{background:#a020a0;color:#fff;font-size:0.9rem;}
+.c2048{background:linear-gradient(135deg,#f7c948,#f9a8c9);color:#fff;font-size:0.85rem;}
+.btns{display:flex;gap:10px;margin-bottom:10px;}
+.new-btn{background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:14px;padding:10px 24px;color:white;font-size:0.9rem;cursor:pointer;font-family:inherit;box-shadow:0 3px 12px rgba(249,168,201,0.3);}
+.hint{font-size:0.78rem;color:#c0a8c0;text-align:center;margin-bottom:6px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(255,240,248,0.88);z-index:99;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.overlay.show{display:flex;}
+.overlay-title{font-size:1.8rem;color:#c060a0;}
+.overlay-score{font-size:1rem;color:#a07090;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>🎮 2048</h1>
+</div>
+<div class="score-row">
+  <div class="score-box"><div class="score-label">当前分数</div><div class="score-val" id="score">0</div></div>
+  <div class="score-box"><div class="score-label">最高分数</div><div class="score-val" id="best">0</div></div>
+</div>
+<div class="board"><div class="grid" id="grid"></div></div>
+<div class="btns">
+  <button class="new-btn" onclick="newGame()">✦ 新游戏</button>
+</div>
+<p class="hint">滑动屏幕 或 方向键 移动方块</p>
+<div class="overlay" id="overlay">
+  <div class="overlay-title" id="overlayTitle">游戏结束</div>
+  <div class="overlay-score" id="overlayScore"></div>
+  <button class="new-btn" onclick="newGame()">再来一局</button>
+</div>
+<script>
+let board,score,best;
+function newGame(){
+  board=Array(16).fill(0);score=0;
+  best=parseInt(localStorage.getItem('2048best')||'0');
+  addTile();addTile();
+  document.getElementById('overlay').classList.remove('show');
+  render();
+}
+function addTile(){
+  const empty=board.map((v,i)=>v===0?i:-1).filter(i=>i>=0);
+  if(!empty.length)return;
+  const i=empty[Math.floor(Math.random()*empty.length)];
+  board[i]=Math.random()<0.9?2:4;
+}
+function render(){
+  document.getElementById('score').textContent=score;
+  best=Math.max(best,score);localStorage.setItem('2048best',best);
+  document.getElementById('best').textContent=best;
+  const grid=document.getElementById('grid');grid.innerHTML='';
+  board.forEach(v=>{
+    const cell=document.createElement('div');
+    cell.className='cell'+(v?' c'+v:'');
+    cell.textContent=v||'';
+    grid.appendChild(cell);
+  });
+}
+function move(dir){
+  const prev=JSON.stringify(board);
+  const rows=[[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]];
+  const cols=[[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15]];
+  function slide(line){
+    let arr=line.map(i=>board[i]).filter(v=>v);
+    for(let i=0;i<arr.length-1;i++){if(arr[i]===arr[i+1]){arr[i]*=2;score+=arr[i];arr.splice(i+1,1);}}
+    while(arr.length<4)arr.push(0);
+    line.forEach((i,j)=>board[i]=arr[j]);
+  }
+  function slideReverse(line){
+    let arr=line.map(i=>board[i]).filter(v=>v);
+    for(let i=arr.length-1;i>0;i--){if(arr[i]===arr[i-1]){arr[i]*=2;score+=arr[i];arr.splice(i-1,1);}}
+    while(arr.length<4)arr.unshift(0);
+    line.forEach((i,j)=>board[i]=arr[j]);
+  }
+  if(dir==='left')rows.forEach(slide);
+  else if(dir==='right')rows.forEach(slideReverse);
+  else if(dir==='up')cols.forEach(slide);
+  else if(dir==='down')cols.forEach(slideReverse);
+  if(JSON.stringify(board)!==prev){addTile();render();checkEnd();}
+}
+function checkEnd(){
+  if(board.includes(2048)){document.getElementById('overlayTitle').textContent='🎉 达成2048！';document.getElementById('overlayScore').textContent='得分：'+score;document.getElementById('overlay').classList.add('show');return;}
+  for(let i=0;i<16;i++){
+    if(board[i]===0)return;
+    if(i%4<3&&board[i]===board[i+1])return;
+    if(i<12&&board[i]===board[i+4])return;
+  }
+  document.getElementById('overlayTitle').textContent='游戏结束';
+  document.getElementById('overlayScore').textContent='最终得分：'+score+'  小星陪你继续加油！';
+  document.getElementById('overlay').classList.add('show');
+}
+// 触摸
+let tx,ty;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
+  if(Math.abs(dx)>Math.abs(dy))move(dx>0?'right':'left');
+  else move(dy>0?'down':'up');
+},{passive:true});
+// 键盘
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')move('left');
+  else if(e.key==='ArrowRight')move('right');
+  else if(e.key==='ArrowUp')move('up');
+  else if(e.key==='ArrowDown')move('down');
+});
+newGame();
+</script>
+</body>
+</html>

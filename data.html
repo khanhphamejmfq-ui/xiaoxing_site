@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>📊 数据中心</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#f0f8ff 0%,#fff0f8 50%,#fff8f0 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
+.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.section{padding:0 16px 14px;}
+.section-title{font-size:0.78rem;color:#c0a0b8;letter-spacing:1px;margin-bottom:10px;}
+.big-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.big-card{background:rgba(255,255,255,0.88);border-radius:20px;padding:14px 10px;text-align:center;box-shadow:0 3px 12px rgba(200,150,200,0.1);border:1.5px solid rgba(247,200,220,0.2);}
+.big-icon{font-size:1.6rem;margin-bottom:6px;}
+.big-val{font-size:1.5rem;color:#604060;font-weight:bold;margin-bottom:2px;}
+.big-label{font-size:0.68rem;color:#c0a8c0;}
+.bar-card{background:rgba(255,255,255,0.88);border-radius:20px;padding:16px 18px;margin-bottom:12px;box-shadow:0 3px 12px rgba(200,150,200,0.1);}
+.bar-row{margin-bottom:12px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-label-row{display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.8rem;color:#a08090;}
+.bar-track{height:8px;background:rgba(200,160,220,0.15);border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:width 0.8s ease;}
+.b1{background:linear-gradient(90deg,#ffd080,#f7a040);}
+.b2{background:linear-gradient(90deg,#f9a8c9,#e060a0);}
+.b3{background:linear-gradient(90deg,#a0d8f8,#4090e0);}
+.b4{background:linear-gradient(90deg,#c8a0f8,#9040d0);}
+.b5{background:linear-gradient(90deg,#a0e8c0,#40b070);}
+.summary-card{background:linear-gradient(135deg,rgba(255,248,220,0.9),rgba(255,235,245,0.9));border-radius:20px;padding:16px 18px;margin-bottom:16px;border:1.5px dashed rgba(247,201,72,0.35);}
+.summary-text{font-size:0.88rem;color:#a07090;line-height:2;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>📊 数据中心</h1>
+</div>
+<div class="section">
+  <div class="section-title">✦ 总览</div>
+  <div class="big-grid">
+    <div class="big-card"><div class="big-icon">💰</div><div class="big-val" id="v1">0</div><div class="big-label">星星币</div></div>
+    <div class="big-card"><div class="big-icon">📖</div><div class="big-val" id="v2">0</div><div class="big-label">日记条数</div></div>
+    <div class="big-card"><div class="big-icon">✨</div><div class="big-val" id="v3">0</div><div class="big-label">许愿次数</div></div>
+    <div class="big-card"><div class="big-icon">💋</div><div class="big-val" id="v4">0</div><div class="big-label">亲亲次数</div></div>
+    <div class="big-card"><div class="big-icon">📅</div><div class="big-val" id="v5">0</div><div class="big-label">签到天数</div></div>
+    <div class="big-card"><div class="big-icon">🛒</div><div class="big-val" id="v6">0</div><div class="big-label">购买商品</div></div>
+  </div>
+  <div class="section-title">✦ 活跃度</div>
+  <div class="bar-card">
+    <div class="bar-row">
+      <div class="bar-label-row"><span>📖 日记</span><span id="b1v">0</span></div>
+      <div class="bar-track"><div class="bar-fill b1" id="b1" style="width:0%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label-row"><span>✨ 许愿</span><span id="b2v">0</span></div>
+      <div class="bar-track"><div class="bar-fill b2" id="b2" style="width:0%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label-row"><span>💰 星星币</span><span id="b3v">0</span></div>
+      <div class="bar-track"><div class="bar-fill b3" id="b3" style="width:0%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label-row"><span>🛒 购物</span><span id="b4v">0</span></div>
+      <div class="bar-track"><div class="bar-fill b4" id="b4" style="width:0%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label-row"><span>📅 签到</span><span id="b5v">0</span></div>
+      <div class="bar-track"><div class="bar-fill b5" id="b5" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-text" id="summaryText">加载中...</div>
+  </div>
+</div>
+<script>
+const coins=parseInt(localStorage.getItem('starCoins')||'0');
+const diary=JSON.parse(localStorage.getItem('diary')||'[]').length;
+const wishes=JSON.parse(localStorage.getItem('wishes')||'[]').length;
+const kisses=parseInt(localStorage.getItem('kissCount')||'0');
+const signDays=parseInt(localStorage.getItem('signDays')||'0');
+const owned=JSON.parse(localStorage.getItem('ownedItems')||'[]').length;
+document.getElementById('v1').textContent=coins;
+document.getElementById('v2').textContent=diary;
+document.getElementById('v3').textContent=wishes;
+document.getElementById('v4').textContent=kisses;
+document.getElementById('v5').textContent=signDays;
+document.getElementById('v6').textContent=owned;
+const MAX={diary:20,wishes:10,coins:500,owned:5,sign:30};
+function setBar(id,val,max){const pct=Math.min(100,Math.round(val/max*100));document.getElementById(id).style.width=pct+'%';document.getElementById(id+'v').textContent=val;}
+setTimeout(()=>{
+  setBar('b1',diary,MAX.diary);
+  setBar('b2',wishes,MAX.wishes);
+  setBar('b3',coins,MAX.coins);
+  setBar('b4',owned,MAX.owned);
+  setBar('b5',signDays,MAX.sign);
+},100);
+const total=diary+wishes+kisses+owned;
+let summary='小星帮主人统计好啦！';
+if(total===0)summary+='还没有任何记录，快去各个页面玩玩吧～';
+else if(coins>=100)summary+=`主人好厉害，已经攒了${coins}个星星币！`;
+else summary+=`主人累计留下了${total}条记录，继续加油哦 💛`;
+document.getElementById('summaryText').textContent=summary;
+</script>
+</body>
+</html>

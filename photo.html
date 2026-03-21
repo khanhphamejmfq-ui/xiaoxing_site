@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🖼️ 相册</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#f5f8ff 0%,#fff0f8 50%,#fff8f5 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
+.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.upload-area{margin:0 16px 16px;background:rgba(255,255,255,0.85);border-radius:20px;padding:16px;text-align:center;border:2px dashed rgba(247,180,210,0.4);cursor:pointer;box-shadow:0 3px 12px rgba(200,150,200,0.08);}
+.upload-area input{display:none;}
+.upload-icon{font-size:2rem;margin-bottom:6px;}
+.upload-text{font-size:0.85rem;color:#c0a0b8;}
+.upload-btn{margin-top:10px;background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:14px;padding:8px 20px;color:white;font-size:0.85rem;cursor:pointer;font-family:inherit;}
+.masonry{columns:2;column-gap:10px;padding:0 16px 40px;}
+.photo-item{break-inside:avoid;margin-bottom:10px;border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(200,150,200,0.15);cursor:pointer;position:relative;background:rgba(255,255,255,0.5);}
+.photo-item img{width:100%;display:block;border-radius:16px;}
+.photo-del{position:absolute;top:6px;right:6px;background:rgba(255,100,100,0.75);border:none;border-radius:8px;padding:3px 7px;color:white;font-size:0.7rem;cursor:pointer;}
+.empty{text-align:center;color:#d0a0c0;padding:50px 20px;font-size:0.88rem;}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:95vw;max-height:90vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.lightbox-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>🖼️ 相册</h1>
+</div>
+<div class="upload-area" onclick="document.getElementById('fileInput').click()">
+  <input type="file" id="fileInput" accept="image/*" multiple onchange="handleUpload(event)">
+  <div class="upload-icon">📷</div>
+  <div class="upload-text">点击上传图片</div>
+  <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">+ 添加照片</button>
+</div>
+<div class="masonry" id="masonry"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+</div>
+<script>
+function loadPhotos(){let d=localStorage.getItem('photos');return d?JSON.parse(d):[];}
+function savePhotos(d){localStorage.setItem('photos',JSON.stringify(d));}
+function render(){
+  const photos=loadPhotos();const el=document.getElementById('masonry');el.innerHTML='';
+  if(photos.length===0){el.innerHTML='<div class="empty">相册空空的～上传一些美照吧 📷</div>';return;}
+  [...photos].reverse().forEach((p,ri)=>{
+    const i=photos.length-1-ri;
+    el.innerHTML+=`<div class="photo-item">
+      <img src="${p.data}" onclick="openLightbox('${p.data}')" alt="photo">
+      <button class="photo-del" onclick="event.stopPropagation();delPhoto(${photos.length-1-ri})">✕</button>
+    </div>`;
+  });
+}
+function handleUpload(e){
+  const files=Array.from(e.target.files);
+  let loaded=0;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const photos=loadPhotos();
+      photos.push({data:ev.target.result,time:Date.now()});
+      savePhotos(photos);loaded++;
+      if(loaded===files.length)render();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+}
+function delPhoto(i){const d=loadPhotos();d.splice(i,1);savePhotos(d);render();}
+function openLightbox(src){document.getElementById('lightboxImg').src=src;document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+render();
+</script>
+</body>
+</html>

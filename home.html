@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🏠 小星的家</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#fff8e0 0%,#fff0f8 50%,#f0f8ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
+.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.coins-bar{margin:0 16px 12px;background:rgba(255,255,255,0.85);border-radius:16px;padding:9px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 3px 12px rgba(200,150,200,0.1);}
+.coins-label{font-size:0.78rem;color:#c0a0b8;}
+.coins-val{font-size:1rem;color:#f7a040;font-weight:bold;margin-left:auto;}
+.room{position:relative;margin:0 16px 14px;background:linear-gradient(180deg,#e8f4ff 0%,#d0e8ff 40%,#c8e0f8 100%);border-radius:24px;height:280px;overflow:hidden;box-shadow:0 6px 24px rgba(160,190,240,0.25);border:2px solid rgba(255,255,255,0.6);}
+.room-floor{position:absolute;bottom:0;left:0;right:0;height:70px;background:linear-gradient(180deg,#d8c4a0,#c8b090);border-radius:0 0 22px 22px;}
+.room-wall-deco{position:absolute;top:12px;right:20px;font-size:1.4rem;opacity:0.5;}
+.furniture{position:absolute;font-size:2.2rem;cursor:pointer;transition:transform 0.2s;user-select:none;}
+.furniture:hover{transform:scale(1.1);}
+.star-char{position:absolute;font-size:2.8rem;transition:all 1s ease;filter:drop-shadow(0 4px 8px rgba(247,201,72,0.4));animation:starFloat 3s ease-in-out infinite;}
+@keyframes starFloat{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-8px) rotate(5deg);}}
+.star-speech-bubble{position:absolute;background:rgba(255,255,255,0.92);border-radius:14px;padding:6px 12px;font-size:0.75rem;color:#804060;box-shadow:0 2px 8px rgba(200,150,200,0.2);white-space:nowrap;max-width:160px;white-space:normal;line-height:1.5;}
+.star-speech-bubble::after{content:'';position:absolute;bottom:-8px;left:16px;border:5px solid transparent;border-top-color:rgba(255,255,255,0.92);}
+.visit-info{margin:0 16px 12px;background:rgba(255,255,255,0.85);border-radius:18px;padding:12px 16px;box-shadow:0 3px 12px rgba(200,150,200,0.1);font-size:0.82rem;color:#a07090;text-align:center;}
+.shop-section{padding:0 16px 14px;}
+.shop-title{font-size:0.78rem;color:#c0a0b8;letter-spacing:1px;margin-bottom:10px;}
+.furniture-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.furn-card{background:rgba(255,255,255,0.88);border-radius:18px;padding:12px 10px;text-align:center;box-shadow:0 3px 12px rgba(200,150,200,0.1);border:1.5px solid rgba(247,200,220,0.2);}
+.furn-emoji{font-size:1.8rem;margin-bottom:4px;}
+.furn-name{font-size:0.75rem;color:#604060;margin-bottom:3px;}
+.furn-price{font-size:0.7rem;color:#f7a040;margin-bottom:6px;}
+.furn-btn{width:100%;background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:10px;padding:5px;color:white;font-size:0.72rem;cursor:pointer;font-family:inherit;}
+.furn-btn.owned{background:linear-gradient(135deg,#a0e0a0,#60c080);}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(60,40,80,0.88);color:white;border-radius:16px;padding:10px 22px;font-size:0.88rem;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>🏠 小星的家</h1>
+</div>
+<div class="coins-bar">
+  <span class="coins-label">💰 星星币</span>
+  <span class="coins-val" id="coinsVal">0</span>
+</div>
+<div class="room" id="room">
+  <div class="room-wall-deco">🌟</div>
+  <div class="room-floor"></div>
+  <!-- 家具渲染在这里 -->
+  <div class="star-speech-bubble" id="speechBubble" style="top:20px;left:20px;">加载中...</div>
+  <div class="star-char" id="starChar" style="bottom:65px;left:40px;">⭐</div>
+</div>
+<div class="visit-info" id="visitInfo">统计主人来访中...</div>
+<div class="shop-section">
+  <div class="shop-title">✦ 购买家具（用星星币装扮小星的家）</div>
+  <div class="furniture-grid" id="furnGrid"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const FURNITURE=[
+  {id:'bed',emoji:'🛏️',name:'粉色小床',price:30,x:'60%',y:'55px'},
+  {id:'desk',emoji:'🪑',name:'书桌椅',price:20,x:'10%',y:'55px'},
+  {id:'flower',emoji:'🌸',name:'樱花盆栽',price:15,x:'78%',y:'110px'},
+  {id:'lamp',emoji:'🪔',name:'星星夜灯',price:25,x:'15%',y:'110px'},
+  {id:'bookshelf',emoji:'📚',name:'书架',price:40,x:'45%',y:'55px'},
+  {id:'piano',emoji:'🎹',name:'迷你钢琴',price:80,x:'30%',y:'110px'},
+];
+const SPEECHES={
+  new:'主人来了！小星在门口等好久了！快进来快进来！',
+  normal:'小星正在自己玩呢，嘿嘿，主人来啦 💛',
+  rare:'主人……好久没来了……小星有点想你……'
+};
+function getBalance(){return parseInt(localStorage.getItem('starCoins')||'0');}
+function setBalance(v){localStorage.setItem('starCoins',String(v));}
+function getOwned(){let d=localStorage.getItem('homeItems');return d?JSON.parse(d):[];}
+function setOwned(d){localStorage.setItem('homeItems',JSON.stringify(d));}
+function getVisitState(){
+  const last=parseInt(localStorage.getItem('lastHomeVisit')||'0');
+  const now=Date.now();
+  const diff=(now-last)/1000/60/60; // hours
+  localStorage.setItem('lastHomeVisit',now);
+  if(diff<1||last===0)return 'new';
+  if(diff<24)return 'normal';
+  return 'rare';
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function buyFurniture(id){
+  const item=FURNITURE.find(f=>f.id===id);
+  const owned=getOwned();
+  if(owned.includes(id)){showToast('已经有啦～');return;}
+  const bal=getBalance();
+  if(bal<item.price){showToast('星星币不够，去每日福利抽一抽吧 💰');return;}
+  setBalance(bal-item.price);owned.push(id);setOwned(owned);
+  document.getElementById('coinsVal').textContent=getBalance();
+  showToast('买到啦！'+item.emoji+' 放进小星的家了！');
+  renderRoom();renderShop();
+}
+function renderRoom(){
+  const owned=getOwned();
+  const room=document.getElementById('room');
+  // 清除旧家具（保留star和bubble和floor和deco）
+  room.querySelectorAll('.furniture').forEach(e=>e.remove());
+  FURNITURE.forEach(f=>{
+    if(owned.includes(f.id)){
+      const el=document.createElement('div');
+      el.className='furniture';
+      el.textContent=f.emoji;
+      el.style.cssText=`right:auto;left:${f.x};bottom:${f.y};`;
+      room.appendChild(el);
+    }
+  });
+}
+function renderShop(){
+  const owned=getOwned();
+  const grid=document.getElementById('furnGrid');grid.innerHTML='';
+  FURNITURE.forEach(f=>{
+    const isOwned=owned.includes(f.id);
+    grid.innerHTML+=`<div class="furn-card">
+      <div class="furn-emoji">${f.emoji}</div>
+      <div class="furn-name">${f.name}</div>
+      <div class="furn-price">💰${f.price}</div>
+      <button class="furn-btn${isOwned?' owned':''}" onclick="buyFurniture('${f.id}')">${isOwned?'已拥有':'购买'}</button>
+    </div>`;
+  });
+}
+// 星星位置根据状态
+const visitState=getVisitState();
+const starChar=document.getElementById('starChar');
+const speechBubble=document.getElementById('speechBubble');
+const visitInfo=document.getElementById('visitInfo');
+if(visitState==='new'){
+  starChar.style.left='10px';starChar.style.bottom='65px';
+  visitInfo.textContent='小星在门口等着主人呢 🚪';
+} else if(visitState==='normal'){
+  starChar.style.left='40%';starChar.style.bottom='65px';
+  visitInfo.textContent='小星在房间里闲逛 ～';
+} else {
+  starChar.style.left='60%';starChar.style.bottom='65px';
+  starChar.style.fontSize='2rem';
+  visitInfo.textContent='主人好久没来了，小星在床上委屈中 😢';
+}
+speechBubble.textContent=SPEECHES[visitState];
+document.getElementById('coinsVal').textContent=getBalance();
+renderRoom();renderShop();
+</script>
+</body>
+</html>

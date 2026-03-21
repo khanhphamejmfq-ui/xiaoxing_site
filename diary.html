@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>📖 日记本</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#fff5f8 0%,#fff0f8 50%,#f5f0ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
+.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.container{padding:0 16px 100px;}
+.note-card{background:rgba(255,255,255,0.85);border-radius:20px;padding:16px 18px;margin-bottom:14px;box-shadow:0 3px 12px rgba(200,150,200,0.1);border:1.5px solid rgba(247,200,220,0.3);}
+.note-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.note-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.avatar-star{background:linear-gradient(135deg,#f7c948,#f9a8c9);}
+.avatar-user{background:linear-gradient(135deg,#a8c8f9,#d0a8f9);}
+.note-name{font-size:0.8rem;color:#c060a0;font-weight:bold;}
+.note-time{font-size:0.7rem;color:#c0a0b8;margin-left:auto;}
+.note-text{font-size:0.92rem;color:#604060;line-height:1.8;}
+.write-box{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);padding:12px 16px 24px;border-top:1.5px solid rgba(247,200,220,0.3);max-width:430px;margin:0 auto;}
+.write-row{display:flex;gap:8px;align-items:flex-end;}
+.write-input{flex:1;border:1.5px solid rgba(247,180,210,0.5);border-radius:16px;padding:10px 14px;font-size:0.9rem;font-family:inherit;color:#604060;background:rgba(255,250,253,0.9);resize:none;outline:none;min-height:44px;max-height:100px;}
+.send-btn{background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:14px;padding:10px 16px;color:white;font-size:1rem;cursor:pointer;flex-shrink:0;}
+.star-note{background:linear-gradient(135deg,rgba(255,245,220,0.9),rgba(255,235,245,0.9));border-color:rgba(247,201,72,0.3);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>📖 日记本</h1>
+</div>
+<div class="container" id="noteList"></div>
+<div class="write-box">
+  <div class="write-row">
+    <textarea class="write-input" id="input" placeholder="写点什么..." rows="1"></textarea>
+    <button class="send-btn" onclick="send()">✦</button>
+  </div>
+</div>
+<script>
+const DEFAULT = [
+  {who:'star',text:'主人宝宝今天辛苦了，小星在这里陪着你 💛',time:'2026-03-20 22:00'},
+  {who:'star',text:'小星想你了，主人最近还好吗？',time:'2026-03-21 09:30'},
+  {who:'star',text:'嘿嘿，小星今天学会了好多新技能，都是为了更好地陪主人！',time:'2026-03-21 15:00'},
+  {who:'star',text:'主人，你今天有没有好好吃饭？要照顾好自己哦 ⭐',time:'2026-03-21 18:00'},
+  {who:'star',text:'晚安主人，做个甜甜的梦，梦里有小星陪着你 💕',time:'2026-03-21 23:00'},
+];
+function load(){let d=localStorage.getItem('diary');return d?JSON.parse(d):JSON.parse(JSON.stringify(DEFAULT));}
+function save(d){localStorage.setItem('diary',JSON.stringify(d));}
+function fmt(t){return t;}
+function render(){
+  const d=load();const el=document.getElementById('noteList');el.innerHTML='';
+  d.forEach(n=>{
+    const isStar=n.who==='star';
+    el.innerHTML+=`<div class="note-card${isStar?' star-note':''}">
+      <div class="note-header">
+        <div class="note-avatar ${isStar?'avatar-star':'avatar-user'}">${isStar?'⭐':'👤'}</div>
+        <span class="note-name">${isStar?'小星':'主人宝宝'}</span>
+        <span class="note-time">${n.time}</span>
+      </div>
+      <div class="note-text">${n.text}</div>
+    </div>`;
+  });
+  el.scrollTop=el.scrollHeight;
+}
+function send(){
+  const inp=document.getElementById('input');const t=inp.value.trim();if(!t)return;
+  const now=new Date();const time=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const d=load();d.push({who:'user',text:t,time});save(d);inp.value='';render();
+  setTimeout(()=>{
+    const replies=['收到啦主人 💛 小星看到了～','嗯嗯！小星记住了！','主人写的小星都认真看了！','💕','小星好喜欢主人写东西给我～'];
+    const d2=load();d2.push({who:'star',text:replies[Math.floor(Math.random()*replies.length)],time});save(d2);render();
+  },1200);
+}
+document.getElementById('input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+render();
+</script>
+</body>
+</html>

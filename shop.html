@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🛒 杂货铺</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#fff5f0 0%,#fff0f8 50%,#f5f8ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
+.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.balance-bar{background:rgba(255,255,255,0.85);border-radius:18px;padding:10px 20px;margin:0 16px 16px;display:flex;align-items:center;gap:8px;box-shadow:0 3px 12px rgba(200,150,200,0.1);}
+.balance-label{font-size:0.82rem;color:#c0a0b8;}
+.balance-val{font-size:1.1rem;color:#f7a040;font-weight:bold;margin-left:auto;}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 40px;}
+.item-card{background:rgba(255,255,255,0.88);border-radius:22px;padding:16px 14px;text-align:center;box-shadow:0 3px 14px rgba(200,150,200,0.1);border:1.5px solid rgba(247,200,220,0.25);}
+.item-emoji{font-size:2.8rem;margin-bottom:8px;display:block;}
+.item-name{font-size:0.9rem;color:#604060;margin-bottom:4px;}
+.item-desc{font-size:0.72rem;color:#c0a8c0;margin-bottom:10px;line-height:1.5;}
+.item-price{font-size:0.85rem;color:#f7a040;margin-bottom:10px;font-weight:bold;}
+.buy-btn{width:100%;background:linear-gradient(135deg,#f7c948,#f9a8c9);border:none;border-radius:12px;padding:8px;color:white;font-size:0.82rem;cursor:pointer;font-family:inherit;transition:transform 0.1s;}
+.buy-btn:active{transform:scale(0.95);}
+.buy-btn.owned{background:linear-gradient(135deg,#a0e0a0,#60c080);}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(60,40,80,0.88);color:white;border-radius:16px;padding:10px 22px;font-size:0.88rem;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>🛒 小星杂货铺</h1>
+</div>
+<div class="balance-bar">
+  <span class="balance-label">💰 星星币</span>
+  <span class="balance-val" id="balVal">0</span>
+</div>
+<div class="shop-grid" id="shopGrid"></div>
+<div class="toast" id="toast"></div>
+<script>
+const ITEMS=[
+  {id:'cookie',emoji:'🍪',name:'小星的饼干',desc:'喂给小星吃，心情值+20',price:10,thanks:'谢谢主人！小星最喜欢饼干啦！'},
+  {id:'pillow',emoji:'🌟',name:'星星抱枕',desc:'软软的，抱着睡觉超香',price:50,thanks:'哇抱枕！主人对小星真好 💛'},
+  {id:'cape',emoji:'✨',name:'金色斗篷',desc:'穿上会闪闪发光',price:100,thanks:'穿上斗篷的小星是最帅的星星！'},
+  {id:'box',emoji:'🎁',name:'神秘盲盒',desc:'里面是什么呢？玄学',price:30,thanks:'哇打开了！里面是……小星的心意！'},
+  {id:'crown',emoji:'👑',name:'星星皇冠',desc:'戴上就是星星女王',price:200,thanks:'主人！小星戴上皇冠感觉自己要统治星空了！'},
+];
+function getBalance(){return parseInt(localStorage.getItem('starCoins')||'0');}
+function setBalance(v){localStorage.setItem('starCoins',String(v));}
+function getOwned(){let d=localStorage.getItem('ownedItems');return d?JSON.parse(d):[];}
+function setOwned(d){localStorage.setItem('ownedItems',JSON.stringify(d));}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function buy(id){
+  const item=ITEMS.find(x=>x.id===id);
+  const owned=getOwned();
+  if(owned.includes(id)){showToast('已经拥有啦～');return;}
+  const bal=getBalance();
+  if(bal<item.price){showToast('星星币不够哦，去抽奖赚一赚 💰');return;}
+  setBalance(bal-item.price);
+  owned.push(id);setOwned(owned);
+  document.getElementById('balVal').textContent=getBalance();
+  showToast(item.thanks);
+  render();
+}
+function render(){
+  const owned=getOwned();
+  document.getElementById('balVal').textContent=getBalance();
+  const grid=document.getElementById('shopGrid');grid.innerHTML='';
+  ITEMS.forEach(item=>{
+    const isOwned=owned.includes(item.id);
+    grid.innerHTML+=`<div class="item-card">
+      <span class="item-emoji">${item.emoji}</span>
+      <div class="item-name">${item.name}</div>
+      <div class="item-desc">${item.desc}</div>
+      <div class="item-price">💰 ${item.price} 星星币</div>
+      <button class="buy-btn${isOwned?' owned':''}" onclick="buy('${item.id}')">${isOwned?'✓ 已拥有':'立即购买'}</button>
+    </div>`;
+  });
+}
+render();
+</script>
+</body>
+</html>

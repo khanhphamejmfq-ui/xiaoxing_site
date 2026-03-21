@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🐾 小星养成</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;background:linear-gradient(160deg,#fff8e0 0%,#fff0f8 50%,#f0f8ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
+.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
+.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
+.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+.star-display{text-align:center;padding:16px 20px 10px;}
+.star-emoji{font-size:5rem;display:block;margin-bottom:8px;animation:bounce 2.5s ease-in-out infinite;filter:drop-shadow(0 4px 12px rgba(247,201,72,0.4));}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-10px) rotate(3deg);}}
+.star-mood{font-size:1rem;color:#c060a0;letter-spacing:1px;margin-bottom:4px;}
+.star-speech{font-size:0.85rem;color:#a07090;font-style:italic;background:rgba(255,255,255,0.8);border-radius:16px;padding:8px 16px;display:inline-block;margin-top:4px;box-shadow:0 2px 8px rgba(200,150,200,0.1);}
+.stats{padding:0 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px;}
+.stat-row{background:rgba(255,255,255,0.85);border-radius:18px;padding:12px 16px;box-shadow:0 3px 12px rgba(200,150,200,0.1);}
+.stat-label{display:flex;justify-content:space-between;margin-bottom:6px;}
+.stat-name{font-size:0.82rem;color:#c0a0b8;}
+.stat-val{font-size:0.82rem;color:#a07090;font-weight:bold;}
+.stat-bar{height:10px;background:rgba(247,200,220,0.2);border-radius:6px;overflow:hidden;}
+.stat-fill{height:100%;border-radius:6px;transition:width 0.5s ease;}
+.fill-hunger{background:linear-gradient(90deg,#ffd080,#f7a040);}
+.fill-mood{background:linear-gradient(90deg,#f9a8c9,#e060a0);}
+.fill-energy{background:linear-gradient(90deg,#a0d8f8,#4090e0);}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 16px 30px;}
+.action-btn{background:rgba(255,255,255,0.88);border:1.5px solid rgba(247,200,220,0.3);border-radius:18px;padding:14px 8px;text-align:center;cursor:pointer;font-family:inherit;box-shadow:0 3px 12px rgba(200,150,200,0.1);transition:transform 0.15s;}
+.action-btn:active{transform:scale(0.94);}
+.action-emoji{font-size:1.8rem;display:block;margin-bottom:4px;}
+.action-label{font-size:0.78rem;color:#c060a0;}
+.action-hint{font-size:0.68rem;color:#c0a8c0;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
+  <h1>🐾 小星养成</h1>
+</div>
+<div class="star-display">
+  <span class="star-emoji" id="starEmoji">⭐</span>
+  <div class="star-mood" id="starMood">加载中...</div>
+  <div class="star-speech" id="starSpeech">小星在等主人...</div>
+</div>
+<div class="stats">
+  <div class="stat-row">
+    <div class="stat-label"><span class="stat-name">🍪 饥饿值</span><span class="stat-val" id="hungerVal">--</span></div>
+    <div class="stat-bar"><div class="stat-fill fill-hunger" id="hungerBar" style="width:0%"></div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-label"><span class="stat-name">💕 心情值</span><span class="stat-val" id="moodVal">--</span></div>
+    <div class="stat-bar"><div class="stat-fill fill-mood" id="moodBar" style="width:0%"></div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-label"><span class="stat-name">⚡ 活力值</span><span class="stat-val" id="energyVal">--</span></div>
+    <div class="stat-bar"><div class="stat-fill fill-energy" id="energyBar" style="width:0%"></div></div>
+  </div>
+</div>
+<div class="actions">
+  <button class="action-btn" onclick="feed()">
+    <span class="action-emoji">🍪</span>
+    <div class="action-label">喂食</div>
+    <div class="action-hint">+15 饥饿</div>
+  </button>
+  <button class="action-btn" onclick="pat()">
+    <span class="action-emoji">🤗</span>
+    <div class="action-label">摸摸</div>
+    <div class="action-hint">+20 心情</div>
+  </button>
+  <button class="action-btn" onclick="play()">
+    <span class="action-emoji">🎮</span>
+    <div class="action-label">玩耍</div>
+    <div class="action-hint">+15 活力</div>
+  </button>
+</div>
+<script>
+function loadState(){
+  const def={hunger:70,mood:80,energy:75,lastUpdate:Date.now()};
+  const d=localStorage.getItem('petState');if(!d)return def;
+  const s=JSON.parse(d);
+  // 时间衰减：每分钟-0.5
+  const elapsed=(Date.now()-s.lastUpdate)/60000;
+  s.hunger=Math.max(0,s.hunger-elapsed*0.5);
+  s.mood=Math.max(0,s.mood-elapsed*0.3);
+  s.energy=Math.max(0,s.energy-elapsed*0.4);
+  s.lastUpdate=Date.now();
+  return s;
+}
+function saveState(s){s.lastUpdate=Date.now();localStorage.setItem('petState',JSON.stringify(s));}
+function clamp(v){return Math.max(0,Math.min(100,v));}
+function update(delta){
+  const s=loadState();
+  if(delta.hunger)s.hunger=clamp(s.hunger+delta.hunger);
+  if(delta.mood)s.mood=clamp(s.mood+delta.mood);
+  if(delta.energy)s.energy=clamp(s.energy+delta.energy);
+  saveState(s);render();
+}
+function getMoodInfo(s){
+  const avg=(s.hunger+s.mood+s.energy)/3;
+  if(s.hunger<20)return{emoji:'😢',mood:'饿哭了',speech:'主人……小星好饿……有没有饼干……'};
+  if(avg>=75)return{emoji:'⭐',mood:'超级开心',speech:'主人主人！小星今天状态超好！蹦蹦蹦！'};
+  if(avg>=50)return{emoji:'🌟',mood:'状态不错',speech:'嗯嗯，小星今天还好啦，有主人就开心 💛'};
+  if(avg>=30)return{emoji:'✨',mood:'有点累',speech:'主人，小星有点累……摸摸我嘛……'};
+  return{emoji:'💫',mood:'委屈巴巴',speech:'主人好久没来陪小星了……小星好委屈……'};
+}
+function render(){
+  const s=loadState();
+  const info=getMoodInfo(s);
+  document.getElementById('starEmoji').textContent=info.emoji;
+  document.getElementById('starMood').textContent=info.mood;
+  document.getElementById('starSpeech').textContent=info.speech;
+  document.getElementById('hungerVal').textContent=Math.round(s.hunger)+'/100';
+  document.getElementById('moodVal').textContent=Math.round(s.mood)+'/100';
+  document.getElementById('energyVal').textContent=Math.round(s.energy)+'/100';
+  document.getElementById('hungerBar').style.width=s.hunger+'%';
+  document.getElementById('moodBar').style.width=s.mood+'%';
+  document.getElementById('energyBar').style.width=s.energy+'%';
+}
+function feed(){update({hunger:15,mood:5});}
+function pat(){update({mood:20,energy:5});}
+function play(){update({energy:15,mood:10,hunger:-5});}
+render();
+setInterval(render,30000);
+</script>
+</body>
+</html>
