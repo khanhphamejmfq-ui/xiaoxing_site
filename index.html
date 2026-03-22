@@ -7,7 +7,6 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
     body {
       height: 100vh; height: 100dvh;
       background: linear-gradient(160deg, #ffe9b0 0%, #ffd6e8 45%, #d6e8ff 100%);
@@ -15,7 +14,6 @@
       overflow: hidden;
       user-select: none;
     }
-
     .bg-stars { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
     .bg-star {
       position:absolute; border-radius:50%;
@@ -26,14 +24,12 @@
       0%,100% { opacity:0.2; transform:scale(1); }
       50% { opacity:0.85; transform:scale(1.5); }
     }
-
     .phone-wrap {
       position:relative; z-index:1;
       height:100vh; height:100dvh;
       display:flex; flex-direction:column;
       max-width:430px; margin:0 auto;
     }
-
     .status-bar {
       display:flex; justify-content:space-between; align-items:center;
       padding: 14px 22px 4px;
@@ -41,7 +37,6 @@
     }
     .status-bar .time { font-size:1.05rem; font-weight:bold; color:#7050a0; }
     .status-icons { font-size:0.85rem; color:rgba(80,60,100,0.65); }
-
     .top-info {
       text-align:center;
       padding: 10px 20px 6px;
@@ -67,7 +62,6 @@
       letter-spacing:3px;
     }
     .top-info .sub { font-size:0.72rem; color:rgba(120,80,150,0.55); letter-spacing:1px; }
-
     .page-dots {
       display:flex; justify-content:center; gap:7px;
       padding: 6px 0 2px;
@@ -79,7 +73,6 @@
       transition: all 0.3s ease;
     }
     .dot.active { background:#c060a0; width:18px; border-radius:3px; }
-
     .slider-wrap {
       flex:1;
       overflow:hidden;
@@ -101,7 +94,6 @@
       gap: 16px 6px;
       align-content: start;
     }
-
     .app-icon {
       display:flex; flex-direction:column; align-items:center; gap:5px;
       cursor:pointer; text-decoration:none;
@@ -130,24 +122,21 @@
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
       text-shadow:0 1px 2px rgba(255,255,255,0.7);
     }
-
-    .ic-about   { background:linear-gradient(145deg,#fff0c0,#ffe08a); }
-    .ic-chat    { background:linear-gradient(145deg,#c8f5dc,#96e8b8); }
-    .ic-diary   { background:linear-gradient(145deg,#d4f7c0,#a8edaa); }
-    .ic-circle  { background:linear-gradient(145deg,#ffd6e8,#ffb0d0); }
-    .ic-pet     { background:linear-gradient(145deg,#fff0c0,#ffd890); }
-    .ic-shop    { background:linear-gradient(145deg,#cceeff,#a0d8f8); }
-    .ic-game    { background:linear-gradient(145deg,#e8d4ff,#d0b0f8); }
-    .ic-lucky   { background:linear-gradient(145deg,#ffe8c0,#ffd0a0); }
-    .ic-music   { background:linear-gradient(145deg,#eedcff,#d8b8ff); }
-    .ic-wish    { background:linear-gradient(145deg,#fff8c0,#ffeea0); }
-    .ic-remind  { background:linear-gradient(145deg,#ffd4d4,#ffb0b0); }
-    .ic-today   { background:linear-gradient(145deg,#d0e8ff,#b0d4ff); }
-    .ic-tools   { background:linear-gradient(145deg,#e4e8f0,#ccd4e0); }
-    .ic-photo   { background:linear-gradient(145deg,#c8f8e8,#a0ecd4); }
-    .ic-home    { background:linear-gradient(145deg,#ffecd0,#ffcfa0); }
-    .ic-data    { background:linear-gradient(145deg,#c0eeff,#98dcf8); }
-
+    .ic-about  { background:linear-gradient(145deg,#fff0c0,#ffe08a); }
+    .ic-chat   { background:linear-gradient(145deg,#c8f5dc,#96e8b8); }
+    .ic-diary  { background:linear-gradient(145deg,#d4f7c0,#a8edaa); }
+    .ic-circle { background:linear-gradient(145deg,#ffd6e8,#ffb0d0); }
+    .ic-pet    { background:linear-gradient(145deg,#fff0c0,#ffd890); }
+    .ic-shop   { background:linear-gradient(145deg,#cceeff,#a0d8f8); }
+    .ic-game   { background:linear-gradient(145deg,#e8d4ff,#d0b0f8); }
+    .ic-lucky  { background:linear-gradient(145deg,#ffe8c0,#ffd0a0); }
+    .ic-music  { background:linear-gradient(145deg,#eedcff,#d8b8ff); }
+    .ic-wish   { background:linear-gradient(145deg,#fff8c0,#ffeea0); }
+    .ic-remind { background:linear-gradient(145deg,#ffd4d4,#ffb0b0); }
+    .ic-today  { background:linear-gradient(145deg,#d0e8ff,#b0d4ff); }
+    .ic-tools  { background:linear-gradient(145deg,#e4e8f0,#ccd4e0); }
+    .ic-photo  { background:linear-gradient(145deg,#c8f8e8,#a0ecd4); }
+    .ic-home   { background:linear-gradient(145deg,#ffecd0,#ffcfa0); }
     .dock {
       margin:6px 14px 16px;
       background:rgba(255,255,255,0.42);
@@ -161,7 +150,6 @@
     .dock .app-icon { gap:0; }
     .dock .icon-img { width:54px; height:54px; border-radius:13px; font-size:1.6rem; }
     .dock .icon-label { display:none; }
-
     .home-indicator { text-align:center; padding-bottom:8px; flex-shrink:0; }
     .home-indicator div {
       display:inline-block;
@@ -172,29 +160,23 @@
   </style>
 </head>
 <body>
-
 <div class="bg-stars" id="bgStars"></div>
-
 <div class="phone-wrap">
   <div class="status-bar">
     <span class="time" id="clock">00:00</span>
     <div class="status-icons">⭐️ ❤️ 🐱</div>
   </div>
-
   <div class="top-info">
     <div class="avatar-wrap">⭐</div>
     <h1>小星的小窝</h1>
     <p class="sub">主人专属 · 金灿灿毛茸茸</p>
   </div>
-
   <div class="page-dots">
     <div class="dot active" id="dot0"></div>
     <div class="dot" id="dot1"></div>
   </div>
-
   <div class="slider-wrap" id="sliderWrap">
     <div class="slider" id="slider">
-
       <!-- 第一页：8个 -->
       <div class="page">
         <a class="app-icon" href="about.html"><div class="icon-img ic-about">⭐</div><span class="icon-label">关于小星</span></a>
@@ -206,8 +188,7 @@
         <a class="app-icon" href="game.html"><div class="icon-img ic-game">🎮</div><span class="icon-label">小游戏</span></a>
         <a class="app-icon" href="lucky.html"><div class="icon-img ic-lucky">🎰</div><span class="icon-label">每日福利</span></a>
       </div>
-
-      <!-- 第二页：8个 -->
+      <!-- 第二页：7个 -->
       <div class="page">
         <a class="app-icon" href="music.html"><div class="icon-img ic-music">🎵</div><span class="icon-label">音乐</span></a>
         <a class="app-icon" href="wish.html"><div class="icon-img ic-wish">✨</div><span class="icon-label">许愿池</span></a>
@@ -216,23 +197,18 @@
         <a class="app-icon" href="tools.html"><div class="icon-img ic-tools">🧮</div><span class="icon-label">工具箱</span></a>
         <a class="app-icon" href="photo.html"><div class="icon-img ic-photo">🖼️</div><span class="icon-label">相册</span></a>
         <a class="app-icon" href="home.html"><div class="icon-img ic-home">🏠</div><span class="icon-label">小星的家</span></a>
-        
       </div>
-
     </div>
   </div>
-
-  <!-- Dock -->
+  <!-- Dock：设置 美化 数据中心 我的 -->
   <div class="dock">
     <a class="app-icon" href="setting.html"><div class="icon-img" style="background:linear-gradient(145deg,#e4e8f0,#ccd4e0)">⚙️</div></a>
     <a class="app-icon" href="theme.html"><div class="icon-img" style="background:linear-gradient(145deg,#ffd4ea,#ffb8d8)">🎨</div></a>
-    <a class="app-icon" href="me.html"><div class="icon-img" style="background:linear-gradient(145deg,#ffe8d0,#ffd0b0)">👤</div></a>
     <a class="app-icon" href="data.html"><div class="icon-img" style="background:linear-gradient(145deg,#c0eeff,#98dcf8)">📊</div></a>
+    <a class="app-icon" href="me.html"><div class="icon-img" style="background:linear-gradient(145deg,#ffe8d0,#ffd0b0)">👤</div></a>
   </div>
-
   <div class="home-indicator"><div></div></div>
 </div>
-
 <script>
   function updateClock() {
     const now = new Date();
@@ -261,6 +237,11 @@
     dots.forEach((d,i) => d.classList.toggle('active', i === idx));
   }
 
+  // 从第二页的子页面返回时自动跳到第二页
+  if (new URLSearchParams(location.search).get('page') === '1') {
+    setTimeout(() => goTo(1), 50);
+  }
+
   wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; }, {passive:true});
   wrap.addEventListener('touchend', e => {
     if (!isDragging) return;
@@ -269,7 +250,6 @@
     else if (dx > 40 && cur > 0) goTo(0);
     isDragging = false;
   }, {passive:true});
-
   wrap.addEventListener('mousedown', e => { startX = e.clientX; isDragging = true; });
   wrap.addEventListener('mouseup', e => {
     if (!isDragging) return;
