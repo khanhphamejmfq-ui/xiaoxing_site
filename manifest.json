@@ -1,16 +1,16 @@
 {
   "name": "小星的小窝",
   "short_name": "小星",
-  "description": "主人专属小星星 ✦",
+  "description": "主人专属的小星空间",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#FFD700",
+  "background_color": "#F8F6F1",
+  "theme_color": "#D8B24A",
   "start_url": "./index.html",
   "scope": "./",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%23FFD700'/%3E%3Ctext x='256' y='340' font-size='300' text-anchor='middle'%3E%E2%AD%90%3C/text%3E%3C/svg%3E",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='88' fill='%23F8F6F1'/%3E%3Ccircle cx='256' cy='256' r='170' fill='%23fff7da'/%3E%3Ctext x='256' y='330' font-size='220' text-anchor='middle'%3E%E2%AD%90%3C/text%3E%3C/svg%3E",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

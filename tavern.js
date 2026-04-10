@@ -89,6 +89,37 @@ function collectLore(text){
   return state.lore.filter(l=> (l.keys||[]).some(k=>k && text.includes(k))).map(l=>l.content).join('\n\n');
 }
 
+async function readStreamingReply(res, assistantMsg){
+  const reader=res.body?.getReader?.();
+  if(!reader) return false;
+  const decoder=new TextDecoder('utf-8');
+  let buffer='';
+  let gotAny=false;
+  while(true){
+    const {value,done}=await reader.read();
+    if(done) break;
+    buffer += decoder.decode(value,{stream:true});
+    const chunks=buffer.split('\n');
+    buffer=chunks.pop()||'';
+    for(const raw of chunks){
+      const line=raw.trim();
+      if(!line) continue;
+      const payload=line.startsWith('data:') ? line.slice(5).trim() : line;
+      if(payload==='[DONE]') continue;
+      try{
+        const json=JSON.parse(payload);
+        const delta=json.choices?.[0]?.delta?.content || json.choices?.[0]?.message?.content || '';
+        if(delta){
+          assistantMsg.content += delta;
+          gotAny=true;
+          renderChat();
+        }
+      }catch{}
+    }
+  }
+  return gotAny;
+}
+
 async function sendTavern(){
   const input=document.getElementById('tavernInput');
   const text=input.value.trim();
@@ -110,15 +141,19 @@ async function sendTavern(){
   }
 
   try{
-    const history=msgs.slice(-12).filter(m=>m!==assistantMsg).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content}));
+    const history=msgs.slice(-20).filter(m=>m!==assistantMsg).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content}));
     const system=[preset?.prompt||'', role?.system||'', lore?`世界书补充：\n${lore}`:''].filter(Boolean).join('\n\n');
-    const res=await fetch(state.api.url.replace(/\/$/,'')+'/chat/completions',{
+    const endpoint=state.api.url.replace(/\/$/,'')+'/chat/completions';
+    const res=await fetch(endpoint,{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+state.api.key},
-      body:JSON.stringify({model:state.api.model,stream:false,messages:[{role:'system',content:system},...history]})
+      body:JSON.stringify({model:state.api.model,stream:true,messages:[{role:'system',content:system},...history]})
     });
-    const data=await res.json();
-    assistantMsg.content=data.choices?.[0]?.message?.content || data.choices?.[0]?.delta?.content || '这次没有拿到回复。';
+    const streamed=await readStreamingReply(res, assistantMsg);
+    if(!streamed){
+      const data=await res.clone().json().catch(()=>null);
+      assistantMsg.content=data?.choices?.[0]?.message?.content || data?.choices?.[0]?.delta?.content || '这次没有拿到回复。';
+    }
   }catch(e){
     assistantMsg.content='连接失败了：'+e.message;
   }
