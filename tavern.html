@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>轻酒馆</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-shell">
+  <div class="topbar">
+    <button class="back-btn" onclick="XS.back('index.html')">←</button>
+    <div>
+      <div class="page-title">轻酒馆</div>
+      <div class="page-sub">角色卡、预设、世界书、聊天都收在一起</div>
+    </div>
+  </div>
+
+  <section class="hero glass">
+    <div class="star-chip">轻量版 · 手机优先 · 够用就好</div>
+    <h2 style="font-size:26px;margin-top:10px;">把角色扔进来，直接聊</h2>
+    <p>不做臃肿按钮，保留最核心的酒馆体验：角色卡、预设、世界书、聊天、接口配置。</p>
+  </section>
+
+  <section class="section">
+    <div class="pill-tabs" id="tabBar">
+      <button class="seg-btn active" data-tab="chat">聊天</button>
+      <button class="seg-btn" data-tab="characters">角色卡</button>
+      <button class="seg-btn" data-tab="presets">预设</button>
+      <button class="seg-btn" data-tab="lorebook">世界书</button>
+      <button class="seg-btn" data-tab="api">API</button>
+    </div>
+  </section>
+
+  <section class="section tab-panel" id="tab-chat">
+    <div class="card glass">
+      <div class="section-head" style="padding:0;margin-bottom:12px"><h3>当前对话</h3><span class="helper" id="activeRoleText">未选择角色</span></div>
+      <div class="inline-grid" style="margin-bottom:12px">
+        <select class="select" id="chatCharacterSelect"></select>
+        <select class="select" id="chatPresetSelect"></select>
+      </div>
+      <div class="helper" id="chatLoreHint">世界书：0 条启用</div>
+    </div>
+    <div class="chat-shell">
+      <div class="chat-list" id="tavernChatList"></div>
+      <div class="chat-input-bar">
+        <textarea class="textarea" id="tavernInput" placeholder="对角色说点什么……" style="min-height:56px"></textarea>
+        <div style="display:flex;flex-direction:column;gap:10px;width:92px">
+          <button class="primary-btn" id="sendTavernBtn">发送</button>
+          <button class="secondary-btn" id="clearTavernBtn">清空</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tab-panel hidden" id="tab-characters">
+    <div class="card glass">
+      <div class="section-head" style="padding:0;margin-bottom:12px"><h3>创建角色</h3><span class="helper">支持导入 JSON</span></div>
+      <div class="grid">
+        <input class="input" id="charName" placeholder="角色名">
+        <input class="input" id="charTags" placeholder="标签，用逗号分隔">
+        <textarea class="textarea" id="charDesc" placeholder="角色简介 / 性格"></textarea>
+        <textarea class="textarea" id="charSystem" placeholder="角色系统提示词 / 开场设定"></textarea>
+        <div class="row-actions">
+          <button class="primary-btn" id="saveCharBtn">保存角色卡</button>
+          <button class="secondary-btn" id="importCharBtn">导入 JSON</button>
+        </div>
+      </div>
+    </div>
+    <div class="mini-list" id="characterList"></div>
+  </section>
+
+  <section class="section tab-panel hidden" id="tab-presets">
+    <div class="card glass">
+      <div class="section-head" style="padding:0;margin-bottom:12px"><h3>预设模板</h3></div>
+      <div class="grid">
+        <input class="input" id="presetName" placeholder="预设名">
+        <textarea class="textarea" id="presetPrompt" placeholder="系统提示词模板"></textarea>
+        <button class="primary-btn" id="savePresetBtn">保存预设</button>
+      </div>
+    </div>
+    <div class="mini-list" id="presetList"></div>
+  </section>
+
+  <section class="section tab-panel hidden" id="tab-lorebook">
+    <div class="card glass">
+      <div class="section-head" style="padding:0;margin-bottom:12px"><h3>世界书条目</h3><span class="helper">关键词触发自动注入</span></div>
+      <div class="grid">
+        <input class="input" id="loreName" placeholder="条目名">
+        <input class="input" id="loreKeys" placeholder="关键词，用逗号分隔">
+        <textarea class="textarea" id="loreContent" placeholder="触发时注入的内容"></textarea>
+        <button class="primary-btn" id="saveLoreBtn">保存条目</button>
+      </div>
+    </div>
+    <div class="mini-list" id="loreList"></div>
+  </section>
+
+  <section class="section tab-panel hidden" id="tab-api">
+    <div class="card glass">
+      <div class="section-head" style="padding:0;margin-bottom:12px"><h3>接口配置</h3></div>
+      <div class="grid">
+        <input class="input" id="apiUrl" placeholder="https://api.example.com/v1">
+        <input class="input" id="apiKey" type="password" placeholder="sk-xxx">
+        <select class="select" id="apiModel"></select>
+        <div class="row-actions">
+          <button class="secondary-btn" id="fetchModelsBtn">拉取模型</button>
+          <button class="primary-btn" id="saveApiBtn">保存配置</button>
+        </div>
+        <div class="helper" id="apiStatus">先填地址和 Key，再拉取模型。</div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="app.js"></script>
+<script src="tavern.js"></script>
+</body>
+</html>

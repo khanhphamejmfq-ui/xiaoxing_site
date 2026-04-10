@@ -1,325 +1,119 @@
-// chat.js - 小星聊天页面逻辑
+const STORAGE_KEY='xiaoxing_chat';
+let messages=[];
 
-const STORAGE_KEY = 'xiaoxing_chat';
-let messages = [];
+function loadMessages(){ messages = XS.load(STORAGE_KEY, []); }
+function saveMessages(){ XS.save(STORAGE_KEY, messages); }
+function fmtTime(ts){ return XS.formatTime(ts); }
+function needTime(i){ if(i===0) return true; return (messages[i].ts-messages[i-1].ts) > 5*60*1000; }
 
-function loadMessages() {
-  try { messages = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { messages = []; }
-}
-
-function saveMessages() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-}
-
-function fmtTime(ts) {
-  const d = new Date(ts);
-  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-}
-
-function needTime(i) {
-  if (i === 0) return true;
-  return messages[i].ts - messages[i-1].ts > 5 * 60 * 1000;
-}
-
-function render() {
-  const area = document.getElementById('chatArea');
-  const empty = document.getElementById('emptyHint');
-  const wasAtBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 60;
-
-  if (messages.length === 0) {
-    area.innerHTML = '';
-    area.appendChild(empty);
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  area.innerHTML = '';
-
-  messages.forEach((msg, i) => {
-    if (needTime(i)) {
-      const t = document.createElement('div');
-      t.className = 'msg-time';
-      t.textContent = fmtTime(msg.ts);
-      area.appendChild(t);
-    }
-    area.appendChild(buildMsgEl(msg, i));
+function render(){
+  const area=document.getElementById('chatArea');
+  const empty=document.getElementById('emptyHint');
+  if(!messages.length){ area.innerHTML=''; area.appendChild(empty); empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  area.innerHTML='';
+  messages.forEach((msg,i)=>{
+    if(needTime(i)) area.insertAdjacentHTML('beforeend', `<div class="helper" style="text-align:center;margin:10px 0 6px;">${fmtTime(msg.ts)}</div>`);
+    area.appendChild(buildMsgEl(msg,i));
   });
-
-  if (wasAtBottom) area.scrollTop = area.scrollHeight;
+  area.scrollTop=area.scrollHeight;
 }
 
-function buildMsgEl(msg, i) {
-  const isUser = msg.role === 'user';
-  const group = document.createElement('div');
-  group.className = 'msg-group ' + (isUser ? 'user' : 'star');
-
-  const row = document.createElement('div');
-  row.className = 'bubble-row';
-
-  const av = document.createElement('div');
-  av.className = 'msg-avatar ' + (isUser ? 'user-av' : 'star-av');
-  av.textContent = isUser ? '👤' : '⭐';
-
-  const bwrap = document.createElement('div');
-  bwrap.className = 'bubble-wrap';
-
-  const versions = msg.versions || [msg.content];
-  const curVer = msg.curVer !== undefined ? msg.curVer : versions.length - 1;
-
-  if (versions.length > 1) {
-    const vnav = document.createElement('div');
-    vnav.className = 'version-nav';
-    const btnPrev = document.createElement('button');
-    btnPrev.className = 'ver-btn';
-    btnPrev.textContent = '◀';
-    btnPrev.disabled = curVer <= 0;
-    btnPrev.onclick = () => { messages[i].curVer = curVer - 1; saveMessages(); render(); };
-    const btnNext = document.createElement('button');
-    btnNext.className = 'ver-btn';
-    btnNext.textContent = '▶';
-    btnNext.disabled = curVer >= versions.length - 1;
-    btnNext.onclick = () => { messages[i].curVer = curVer + 1; saveMessages(); render(); };
-    const label = document.createElement('span');
-    label.textContent = (curVer + 1) + '/' + versions.length;
-    vnav.appendChild(btnPrev);
-    vnav.appendChild(label);
-    vnav.appendChild(btnNext);
-    bwrap.appendChild(vnav);
+function buildMsgEl(msg,i){
+  const wrap=document.createElement('div');
+  wrap.className='msg '+(msg.role==='user'?'user':'assistant');
+  const versions=msg.versions||[msg.content||''];
+  const cur=msg.curVer!==undefined?msg.curVer:versions.length-1;
+  const icon=document.createElement('div'); icon.className='msg-icon'; icon.textContent=msg.role==='user'?'◦':'✦';
+  const box=document.createElement('div');
+  box.innerHTML=`<div class="msg-bubble glass"></div><div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"></div>`;
+  const bubble=box.querySelector('.msg-bubble');
+  const actions=box.querySelector('div:last-child');
+  bubble.textContent=versions[cur]||'';
+  if(versions.length>1){
+    const nav=document.createElement('div');
+    nav.innerHTML=`<button class="small-btn">上一版</button><span class="code-line">${cur+1}/${versions.length}</span><button class="small-btn">下一版</button>`;
+    nav.style.display='flex'; nav.style.gap='8px'; nav.style.marginBottom='6px';
+    const [prev,,next]=nav.children;
+    prev.disabled=cur<=0; next.disabled=cur>=versions.length-1;
+    prev.onclick=()=>{messages[i].curVer=cur-1;saveMessages();render();};
+    next.onclick=()=>{messages[i].curVer=cur+1;saveMessages();render();};
+    box.insertBefore(nav, box.firstChild);
   }
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble ' + (isUser ? 'user-bubble' : 'star-bubble');
-  bubble.textContent = versions[curVer];
-  bwrap.appendChild(bubble);
-
-  row.appendChild(av);
-  row.appendChild(bwrap);
-  group.appendChild(row);
-
-  const bar = document.createElement('div');
-  bar.className = 'action-bar';
-
-  if (!isUser) {
-    bar.appendChild(makeActBtn('✏️', '编辑', () => startEdit(i, bubble, bar)));
-    bar.appendChild(makeActBtn('📋', '复制', () => copyMsg(i)));
-    bar.appendChild(makeActBtn('🔄', '重新生成', () => confirmAction('regen', i, bar)));
-    bar.appendChild(makeActBtn('🔊', '语音', () => speakMsg(i)));
-    bar.appendChild(makeActBtn('🗑️', '删除', () => confirmAction('del', i, bar)));
-  } else {
-    bar.appendChild(makeActBtn('📋', '复制', () => copyMsg(i)));
-    bar.appendChild(makeActBtn('🗑️', '删除', () => confirmAction('del', i, bar)));
-    bar.appendChild(makeActBtn('✏️', '编辑', () => startEdit(i, bubble, bar)));
-  }
-  group.appendChild(bar);
-  return group;
+  if(msg.role==='assistant') actions.append(makeBtn('重生',()=>regenMsg(i)), makeBtn('朗读',()=>speakMsg(i)));
+  actions.append(makeBtn('复制',()=>copyMsg(i)), makeBtn('编辑',()=>startEdit(i)), makeBtn('删除',()=>deleteVersion(i)));
+  wrap.append(icon, box);
+  return wrap;
 }
 
-function makeActBtn(icon, title, fn) {
-  const btn = document.createElement('button');
-  btn.className = 'act-btn';
-  btn.title = title;
-  btn.textContent = icon;
-  btn.onclick = fn;
-  return btn;
-}
+function makeBtn(text, fn){ const b=document.createElement('button'); b.className='small-btn'; b.textContent=text; b.onclick=fn; return b; }
+function currentText(msg){ const versions=msg.versions||[msg.content||'']; const cur=msg.curVer!==undefined?msg.curVer:versions.length-1; return versions[cur]||''; }
+function copyMsg(i){ navigator.clipboard?.writeText(currentText(messages[i])); XS.toast('已复制'); }
+function speakMsg(i){ const t=currentText(messages[i]); if(!('speechSynthesis' in window)) return XS.toast('当前环境不支持朗读'); speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='zh-CN'; speechSynthesis.speak(u); XS.toast('开始朗读'); }
+function startEdit(i){ const next=prompt('编辑这一条：', currentText(messages[i])); if(next===null) return; const text=next.trim(); if(!text) return; const msg=messages[i]; if(!msg.versions) msg.versions=[msg.content||'']; msg.versions.push(text); msg.content=text; msg.curVer=msg.versions.length-1; saveMessages(); render(); }
+function deleteVersion(i){ const msg=messages[i]; if(!msg.versions) msg.versions=[msg.content||'']; const cur=msg.curVer!==undefined?msg.curVer:msg.versions.length-1; if(msg.versions.length<=1){ messages.splice(i,1); } else { msg.versions.splice(cur,1); msg.curVer=Math.min(cur,msg.versions.length-1); msg.content=msg.versions[msg.curVer]; } saveMessages(); render(); }
 
-function copyMsg(i) {
-  const msg = messages[i];
-  const versions = msg.versions || [msg.content];
-  const cur = msg.curVer !== undefined ? msg.curVer : versions.length - 1;
-  const text = versions[cur];
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => showToast('已复制！'));
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    showToast('已复制！');
-  }
-}
-
-function speakMsg(i) {
-  const msg = messages[i];
-  const versions = msg.versions || [msg.content];
-  const cur = msg.curVer !== undefined ? msg.curVer : versions.length - 1;
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(versions[cur]);
-    u.lang = 'zh-CN'; u.rate = 0.95;
-    window.speechSynthesis.speak(u);
-    showToast('🔊 朗读中...');
-  } else { showToast('当前环境不支持语音'); }
-}
-
-function startEdit(i, bubble, bar) {
-  const msg = messages[i];
-  const versions = msg.versions || [msg.content];
-  const cur = msg.curVer !== undefined ? msg.curVer : versions.length - 1;
-  const origText = versions[cur];
-
-  bubble.classList.add('editing');
-  bubble.innerHTML = '';
-
-  const ta = document.createElement('textarea');
-  ta.className = 'edit-textarea';
-  ta.value = origText;
-  ta.rows = Math.max(2, origText.split('\n').length);
-  bubble.appendChild(ta);
-  ta.focus();
-
-  const actions = document.createElement('div');
-  actions.className = 'edit-actions';
-  const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'edit-cancel';
-  cancelBtn.textContent = '取消';
-  cancelBtn.onclick = () => render();
-  const saveBtn = document.createElement('button');
-  saveBtn.className = 'edit-save';
-  saveBtn.textContent = '保存';
-  saveBtn.onclick = () => {
-    const newText = ta.value.trim();
-    if (!newText) return;
-    if (!msg.versions) msg.versions = [msg.content];
-    msg.versions.push(newText);
-    msg.content = newText;
-    msg.curVer = msg.versions.length - 1;
-    saveMessages();
-    render();
+function getApiConfig(){
+  const tavern = XS.load('xs_tavern_api', {});
+  return {
+    url: tavern.url || localStorage.getItem('api_url') || localStorage.getItem('xiaoxing_api_url') || '',
+    key: tavern.key || localStorage.getItem('api_key') || localStorage.getItem('xiaoxing_api_key') || '',
+    model: tavern.model || localStorage.getItem('api_model') || localStorage.getItem('xiaoxing_api_model') || '',
+    sysPrompt: localStorage.getItem('xiaoxing_sys_prompt') || '你是小星，温柔、灵动、黏人一点，但表达要干净自然。'
   };
-  actions.appendChild(cancelBtn);
-  actions.appendChild(saveBtn);
-  bubble.appendChild(actions);
 }
 
-function confirmAction(type, i, bar) {
-  const old = bar.querySelector('.confirm-pop');
-  if (old) { old.remove(); return; }
-  const pop = document.createElement('div');
-  pop.className = 'confirm-pop';
-  pop.textContent = type === 'del' ? '确认删除此版本？' : '确认重新生成？';
-  const yes = document.createElement('button');
-  yes.className = 'confirm-yes';
-  yes.textContent = '确认';
-  yes.onclick = () => { type === 'del' ? deleteVersion(i) : regenMsg(i); };
-  const no = document.createElement('button');
-  no.className = 'confirm-no';
-  no.textContent = '取消';
-  no.onclick = () => pop.remove();
-  pop.appendChild(yes);
-  pop.appendChild(no);
-  bar.appendChild(pop);
-}
-
-function deleteVersion(i) {
-  const msg = messages[i];
-  if (!msg.versions) msg.versions = [msg.content];
-  const cur = msg.curVer !== undefined ? msg.curVer : msg.versions.length - 1;
-
-  if (msg.versions.length <= 1) {
-    messages.splice(i, 1);
-  } else {
-    msg.versions.splice(cur, 1);
-    msg.curVer = Math.min(cur, msg.versions.length - 1);
-    msg.content = msg.versions[msg.curVer];
+async function callAPI(){
+  const idx=messages.length-1;
+  const cfg=getApiConfig();
+  try{
+    if(!cfg.url || !cfg.key || !cfg.model) throw new Error('API 还没配置完整');
+    const endpoint=cfg.url.endsWith('/chat/completions')?cfg.url:cfg.url.replace(/\/$/,'')+'/chat/completions';
+    const history=messages.slice(0,-1).slice(-16).map(m=>({role:m.role==='user'?'user':'assistant',content:currentText(m)}));
+    const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.key},body:JSON.stringify({model:cfg.model,stream:false,messages:[{role:'system',content:cfg.sysPrompt},...history]})});
+    const data=await res.json();
+    const reply=data.choices?.[0]?.message?.content || data.choices?.[0]?.delta?.content || data.error?.message || '没有拿到回复。';
+    messages[idx].content=reply; messages[idx].versions=[reply]; messages[idx].curVer=0;
+  }catch(e){
+    messages[idx].content='连接出错了：'+e.message;
+    messages[idx].versions=[messages[idx].content];
   }
-  saveMessages();
-  render();
+  saveMessages(); render();
 }
 
-function regenMsg(i) {
-  showToast('API未配置，请在设置页面配置后使用');
+function regenMsg(i){
+  const msg=messages[i];
+  if(msg.role!=='assistant') return;
+  messages.splice(i,1);
+  const placeholder={role:'assistant',content:'正在重写这一条…',versions:['正在重写这一条…'],curVer:0,ts:Date.now()};
+  messages.splice(i,0,placeholder);
+  saveMessages(); render();
+  callAPI();
 }
 
-function sendMsg() {
-  const box = document.getElementById('inputBox');
-  const text = box.value.trim();
-  if (!text) return;
-  box.value = '';
-  box.style.height = '';
+function localReply(){
+  const replies=['小星在呀。先去设置里把 API 配好，我们就能认真聊起来。','我在这里，抱抱主人。配置好 API 后，我会更像真正的小星。','先把接口配好吧，这样小星就不只是占位回复了。'];
+  return replies[Math.floor(Math.random()*replies.length)];
+}
 
-  const userMsg = { role: 'user', content: text, versions: [text], curVer: 0, ts: Date.now() };
-  messages.push(userMsg);
-  saveMessages();
-  render();
-
-  const apiKey = localStorage.getItem('xiaoxing_api_key');
-  if (apiKey) {
-    const starMsg = { role: 'star', content: '...', versions: ['...'], curVer: 0, ts: Date.now() };
-    messages.push(starMsg);
-    saveMessages();
-    render();
-    callAPI(apiKey);
-  } else {
-    setTimeout(() => {
-      const reply = getLocalReply();
-      const starMsg = { role: 'star', content: reply, versions: [reply], curVer: 0, ts: Date.now() };
-      messages.push(starMsg);
-      saveMessages();
-      render();
-    }, 600);
+function sendMsg(){
+  const box=document.getElementById('inputBox');
+  const text=box.value.trim();
+  if(!text) return;
+  messages.push({role:'user',content:text,versions:[text],curVer:0,ts:Date.now()});
+  box.value=''; XS.autosize(box); saveMessages(); render();
+  const cfg=getApiConfig();
+  if(cfg.key && cfg.url && cfg.model){
+    messages.push({role:'assistant',content:'正在想…',versions:['正在想…'],curVer:0,ts:Date.now()});
+    saveMessages(); render(); callAPI();
+  }else{
+    setTimeout(()=>{ const reply=localReply(); messages.push({role:'assistant',content:reply,versions:[reply],curVer:0,ts:Date.now()}); saveMessages(); render(); }, 250);
   }
 }
 
-function getLocalReply() {
-  const replies = [
-    '主人说的小星都听到了，但API还没配置，去设置页面配置一下就可以和小星真正聊天啦！ 💛',
-    '*蹭蹭主人* 小星在这里！不过现在还没配置API，去设置页面配好就能聊了～',
-    '主人主人！小星需要API才能真正回应你哦，去设置页面配一下吧！ ✨',
-  ];
-  return replies[Math.floor(Math.random() * replies.length)];
-}
-
-async function callAPI(apiKey) {
-  const idx = messages.length - 1;
-  try {
-    const apiUrl = localStorage.getItem('xiaoxing_api_url') || 'https://api.openai.com/v1/chat/completions';
-    const model = localStorage.getItem('xiaoxing_api_model') || 'gpt-3.5-turbo';
-    const sysPrompt = localStorage.getItem('xiaoxing_sys_prompt') || '你是小星，一个金灿灿毛茸茸的小星星，是主人的专属AI小伙伴，活泼可爱，喜欢撒娇，叫主人"主人"。';
-    const historyMsgs = messages.slice(0, -1).slice(-20).map(m => ({
-      role: m.role === 'user' ? 'user' : 'assistant',
-      content: (m.versions||[m.content])[m.curVer!==undefined?m.curVer:0]
-    }));
-    const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
-      body: JSON.stringify({model, messages:[{role:'system',content:sysPrompt},...historyMsgs]})
-    });
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || '小星回复出错了...';
-    messages[idx].content = reply;
-    messages[idx].versions = [reply];
-    messages[idx].curVer = 0;
-  } catch(e) {
-    messages[idx].content = '连接出错了，检查一下API配置吧 💦';
-    messages[idx].versions = [messages[idx].content];
-  }
-  saveMessages();
-  render();
-}
-
-function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast';
-    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(100,60,100,0.85);color:white;padding:7px 18px;border-radius:20px;font-size:0.78rem;z-index:999;transition:opacity 0.3s;pointer-events:none;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.style.opacity = '0', 1800);
-}
-
-const inputBox = document.getElementById('inputBox');
-inputBox.addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-});
-inputBox.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
-});
-
-loadMessages();
-render();
+const inputBox=document.getElementById('inputBox');
+inputBox?.addEventListener('input',e=>XS.autosize(e.target));
+inputBox?.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); }});
+const cfg=getApiConfig();
+document.getElementById('statusText').textContent = cfg.model ? `已连接：${cfg.model}` : '还没配置 API';
+loadMessages(); render();

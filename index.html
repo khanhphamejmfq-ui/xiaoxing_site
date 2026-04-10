@@ -3,141 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>小星的小窝 ✦</title>
+<title>小星的小窝</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="小星">
-<meta name="theme-color" content="#FFD700">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;}
-body{height:100vh;background:linear-gradient(160deg,#ffe9b0 0%,#ffd6e8 45%,#d6e8ff 100%);font-family:'ZCOOL XiaoWei',sans-serif;overflow:hidden;user-select:none;}
-.bg-stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-.bg-star{position:absolute;border-radius:50%;background:rgba(255,255,255,0.65);animation:twinkle linear infinite;}
-@keyframes twinkle{0%,100%{opacity:0.2;transform:scale(1);}50%{opacity:0.85;transform:scale(1.5);}}
-.phone-wrap{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;max-width:430px;margin:0 auto;}
-.status-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 4px;flex-shrink:0;}
-.status-bar .time{font-size:1.05rem;font-weight:bold;color:#7050a0;}
-.status-icons{font-size:0.85rem;color:rgba(80,60,100,0.65);}
-.top-info{text-align:center;padding:10px 20px 6px;flex-shrink:0;}
-.avatar-wrap{width:62px;height:62px;margin:0 auto 8px;background:linear-gradient(135deg,#f7c948,#f9a8c9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 4px 16px rgba(247,168,201,0.4);animation:floatAvatar 3s ease-in-out infinite;}
-@keyframes floatAvatar{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.top-info h1{font-size:1.15rem;background:linear-gradient(135deg,#c87830,#d05890,#5080d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;}
-.top-info .sub{font-size:0.72rem;color:rgba(120,80,150,0.55);letter-spacing:1px;}
-.page-dots{display:flex;justify-content:center;gap:7px;padding:6px 0 2px;flex-shrink:0;}
-.dot{width:6px;height:6px;border-radius:50%;background:rgba(150,100,180,0.25);transition:all 0.3s ease;}
-.dot.active{background:#c060a0;width:18px;border-radius:3px;}
-.slider-wrap{flex:1;overflow:hidden;position:relative;min-height:0;}
-.slider{display:flex;width:200%;height:100%;transition:transform 0.38s cubic-bezier(.4,0,.2,1);}
-.page{width:50%;height:100%;padding:10px 16px 4px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px 6px;align-content:start;}
-.app-icon{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;text-decoration:none;}
-.app-icon:active .icon-img{transform:scale(0.87);}
-.icon-img{width:58px;height:58px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.75rem;transition:transform 0.12s ease;box-shadow:0 4px 12px rgba(0,0,0,0.13);position:relative;overflow:hidden;}
-.icon-img::after{content:'';position:absolute;top:0;left:0;right:0;height:48%;background:rgba(255,255,255,0.22);border-radius:15px 15px 0 0;}
-.icon-label{font-size:0.68rem;color:rgba(60,40,80,0.78);text-align:center;width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 2px rgba(255,255,255,0.7);}
-.ic-about{background:linear-gradient(145deg,#fff0c0,#ffe08a);}
-.ic-chat{background:linear-gradient(145deg,#c8f5dc,#96e8b8);}
-.ic-diary{background:linear-gradient(145deg,#d4f7c0,#a8edaa);}
-.ic-circle{background:linear-gradient(145deg,#ffd6e8,#ffb0d0);}
-.ic-pet{background:linear-gradient(145deg,#fff0c0,#ffd890);}
-.ic-shop{background:linear-gradient(145deg,#cceeff,#a0d8f8);}
-.ic-game{background:linear-gradient(145deg,#e8d4ff,#d0b0f8);}
-.ic-lucky{background:linear-gradient(145deg,#ffe8c0,#ffd0a0);}
-.ic-music{background:linear-gradient(145deg,#eedcff,#d8b8ff);}
-.ic-wish{background:linear-gradient(145deg,#fff8c0,#ffeea0);}
-.ic-remind{background:linear-gradient(145deg,#ffd4d4,#ffb0b0);}
-.ic-today{background:linear-gradient(145deg,#d0e8ff,#b0d4ff);}
-.ic-tools{background:linear-gradient(145deg,#e4e8f0,#ccd4e0);}
-.ic-photo{background:linear-gradient(145deg,#c8f8e8,#a0ecd4);}
-.ic-home{background:linear-gradient(145deg,#ffecd0,#ffcfa0);}
-.dock{margin:6px 14px 16px;background:rgba(255,255,255,0.42);backdrop-filter:blur(18px);border-radius:28px;padding:10px 0;display:flex;justify-content:space-around;align-items:center;box-shadow:0 2px 16px rgba(180,140,200,0.18);flex-shrink:0;}
-.dock .app-icon{gap:0;}
-.dock .icon-img{width:54px;height:54px;border-radius:13px;font-size:1.6rem;}
-.dock .icon-label{display:none;}
-.home-indicator{text-align:center;padding-bottom:8px;flex-shrink:0;}
-.home-indicator div{display:inline-block;width:110px;height:5px;background:rgba(100,60,120,0.18);border-radius:3px;}
-</style>
+<meta name="theme-color" content="#D8B24A">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="bg-stars" id="bgStars"></div>
-<div class="phone-wrap">
-<div class="status-bar"><span class="time" id="clock">00:00</span><div class="status-icons">⭐️ ❤️ 🐱</div></div>
-<div class="top-info"><div class="avatar-wrap">⭐</div><h1>小星的小窝</h1><p class="sub">主人专属 · 金灿灿毛茸茸</p></div>
-<div class="page-dots"><div class="dot active" id="dot0"></div><div class="dot" id="dot1"></div></div>
-<div class="slider-wrap" id="sliderWrap">
-<div class="slider" id="slider">
-<!-- 第一页：8个 -->
-<div class="page">
-<a class="app-icon" href="about.html"><div class="icon-img ic-about">⭐</div><span class="icon-label">关于小星</span></a>
-<a class="app-icon" href="chat.html"><div class="icon-img ic-chat">💬</div><span class="icon-label">聊天</span></a>
-<a class="app-icon" href="diary.html"><div class="icon-img ic-diary">📖</div><span class="icon-label">日记本</span></a>
-<a class="app-icon" href="circle.html"><div class="icon-img ic-circle">💌</div><span class="icon-label">朋友圈</span></a>
-<a class="app-icon" href="pet.html"><div class="icon-img ic-pet">🐾</div><span class="icon-label">小星养成</span></a>
-<a class="app-icon" href="shop.html"><div class="icon-img ic-shop">🛒</div><span class="icon-label">杂货铺</span></a>
-<a class="app-icon" href="game.html"><div class="icon-img ic-game">🎮</div><span class="icon-label">小游戏</span></a>
-<a class="app-icon" href="lucky.html"><div class="icon-img ic-lucky">🎰</div><span class="icon-label">每日福利</span></a>
+<div class="page-shell">
+  <section class="hero glass">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="star-avatar">⭐</div>
+        <div>
+          <div class="star-chip">主人专属 · 小星空间</div>
+          <h1 style="font-size:28px;margin-top:10px;">小星的小窝</h1>
+          <p>简约一点，舒服一点，亮晶晶一点。这里还是主人的小星，只是换了更干净的新衣服。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h3>桌面</h3><span class="helper">轻一点的卡片式入口</span></div>
+    <div class="icon-grid">
+      <a class="app-card glass" href="about.html"><div class="app-icon">✦</div><div class="title">关于小星</div><div class="desc">档案与设定</div></a>
+      <a class="app-card glass" href="chat.html"><div class="app-icon">💬</div><div class="title">聊天</div><div class="desc">和小星说话</div></a>
+      <a class="app-card glass" href="tavern.html"><div class="app-icon">⌘</div><div class="title">轻酒馆</div><div class="desc">角色、预设、世界书</div></a>
+      <a class="app-card glass" href="diary.html"><div class="app-icon">📝</div><div class="title">日记本</div><div class="desc">随手记点心事</div></a>
+      <a class="app-card glass" href="circle.html"><div class="app-icon">◎</div><div class="title">朋友圈</div><div class="desc">动态与碎片</div></a>
+      <a class="app-card glass" href="pet.html"><div class="app-icon">◌</div><div class="title">养成</div><div class="desc">小星状态</div></a>
+      <a class="app-card glass" href="theme.html"><div class="app-icon">◐</div><div class="title">主题</div><div class="desc">色彩和壁纸</div></a>
+      <a class="app-card glass" href="setting.html"><div class="app-icon">⚙</div><div class="title">设置</div><div class="desc">接口与偏好</div></a>
+      <a class="app-card glass" href="tools.html"><div class="app-icon">⌂</div><div class="title">工具箱</div><div class="desc">便签与小工具</div></a>
+      <a class="app-card glass" href="today.html"><div class="app-icon">☼</div><div class="title">今日</div><div class="desc">运势与记录</div></a>
+      <a class="app-card glass" href="music.html"><div class="app-icon">♫</div><div class="title">音乐</div><div class="desc">歌单角落</div></a>
+      <a class="app-card glass" href="me.html"><div class="app-icon">☺</div><div class="title">我的</div><div class="desc">主人的面板</div></a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h3>快速状态</h3></div>
+    <div class="inline-grid">
+      <div class="stat glass">
+        <div class="num" id="home-chat-count">0</div>
+        <div class="label">聊天条数</div>
+      </div>
+      <div class="stat glass">
+        <div class="num" id="home-role-count">0</div>
+        <div class="label">酒馆角色</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="bottom-dock glass">
+    <a href="chat.html"><div class="dock-item glass">聊天</div></a>
+    <a href="tavern.html"><div class="dock-item glass">轻酒馆</div></a>
+    <a href="setting.html"><div class="dock-item glass">设置</div></a>
+  </div>
 </div>
-<!-- 第二页：7个 -->
-<div class="page">
-<a class="app-icon" href="music.html"><div class="icon-img ic-music">🎵</div><span class="icon-label">音乐</span></a>
-<a class="app-icon" href="wish.html"><div class="icon-img ic-wish">✨</div><span class="icon-label">许愿池</span></a>
-<a class="app-icon" href="remind.html"><div class="icon-img ic-remind">🔔</div><span class="icon-label">小星提醒</span></a>
-<a class="app-icon" href="today.html"><div class="icon-img ic-today">🗓️</div><span class="icon-label">今日运势</span></a>
-<a class="app-icon" href="tools.html"><div class="icon-img ic-tools">🧮</div><span class="icon-label">工具箱</span></a>
-<a class="app-icon" href="photo.html"><div class="icon-img ic-photo">🖼️</div><span class="icon-label">相册</span></a>
-<a class="app-icon" href="home.html"><div class="icon-img ic-home">🏠</div><span class="icon-label">小星的家</span></a>
-</div>
-</div>
-</div>
-<!-- Dock：设置/美化/数据中心/我的 -->
-<div class="dock">
-<a class="app-icon" href="setting.html"><div class="icon-img" style="background:linear-gradient(145deg,#e4e8f0,#ccd4e0)">⚙️</div></a>
-<a class="app-icon" href="theme.html"><div class="icon-img" style="background:linear-gradient(145deg,#ffd4ea,#ffb8d8)">🎨</div></a>
-<a class="app-icon" href="data.html"><div class="icon-img" style="background:linear-gradient(145deg,#c0eeff,#98dcf8)">📊</div></a>
-<a class="app-icon" href="me.html"><div class="icon-img" style="background:linear-gradient(145deg,#ffe8d0,#ffd0b0)">👤</div></a>
-</div>
-<div class="home-indicator"><div></div></div>
-</div>
+<script src="app.js"></script>
 <script>
-function updateClock(){const now=new Date();document.getElementById('clock').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');}
-updateClock();setInterval(updateClock,1000);
-const bg=document.getElementById('bgStars');
-for(let i=0;i<22;i++){const d=document.createElement('div');d.className='bg-star';const s=3+Math.random()*5;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s;`;bg.appendChild(d);}
-const slider=document.getElementById('slider');
-const wrap=document.getElementById('sliderWrap');
-const dots=[document.getElementById('dot0'),document.getElementById('dot1')];
-let cur=0,startX=0,isDragging=false;
-function goTo(idx,save){
-  cur=idx;
-  slider.style.transform=`translateX(-${idx*50}%)`;
-  dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
-  if(save)sessionStorage.setItem('page',idx);
-}
-// 从子页面返回时恢复页面位置（只用URL参数，不用sessionStorage，避免刷新跳页）
-const pg=new URLSearchParams(location.search).get('page');
-if(pg==='1'){slider.style.transition='none';goTo(1,false);setTimeout(()=>slider.style.transition='',50);}
-wrap.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;isDragging=true;},{passive:true});
-wrap.addEventListener('touchend',e=>{
-  if(!isDragging)return;
-  const dx=e.changedTouches[0].clientX-startX;
-  if(dx<-40&&cur<1)goTo(1,false);
-  else if(dx>40&&cur>0)goTo(0,false);
-  isDragging=false;
-},{passive:true});
-wrap.addEventListener('mousedown',e=>{startX=e.clientX;isDragging=true;});
-wrap.addEventListener('mouseup',e=>{
-  if(!isDragging)return;
-  const dx=e.clientX-startX;
-  if(dx<-40&&cur<1)goTo(1,false);
-  else if(dx>40&&cur>0)goTo(0,false);
-  isDragging=false;
-});
-// dock点击记住当前页，子页面返回时回到这里
-document.querySelectorAll('.dock .app-icon').forEach(a=>{
-  a.addEventListener('click',()=>sessionStorage.setItem('dockPage',cur));
-});
+const chats = XS.load('xiaoxing_chat', []);
+const tavernChars = XS.load('xs_tavern_characters', []);
+document.getElementById('home-chat-count').textContent = chats.length;
+document.getElementById('home-role-count').textContent = tavernChars.length;
 </script>
 </body>
 </html>

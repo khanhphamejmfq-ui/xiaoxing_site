@@ -3,79 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>⚙️ 设置</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{min-height:100vh;background:linear-gradient(160deg,#f5f8ff 0%,#fff0f8 50%,#fff8f5 100%);font-family:'ZCOOL XiaoWei',sans-serif;}
-.topbar{display:flex;align-items:center;padding:16px 18px 10px;gap:12px;}
-.back-btn{background:rgba(255,255,255,0.8);border:none;border-radius:12px;padding:8px 14px;font-size:0.85rem;color:#c060a0;cursor:pointer;box-shadow:0 2px 8px rgba(200,100,160,0.15);font-family:inherit;}
-.topbar h1{font-size:1.2rem;background:linear-gradient(135deg,#f7c948,#f9a8c9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
-.section{padding:0 16px 16px;}
-.section-title{font-size:0.78rem;color:#c0a0b8;letter-spacing:1px;margin-bottom:10px;}
-.card{background:rgba(255,255,255,0.88);border-radius:22px;overflow:hidden;box-shadow:0 3px 14px rgba(200,150,200,0.1);margin-bottom:16px;}
-.row{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(247,200,220,0.15);gap:12px;cursor:pointer;transition:background 0.15s;}
-.row:last-child{border-bottom:none;}
-.row:active{background:rgba(247,200,220,0.1);}
-.row-icon{font-size:1.3rem;flex-shrink:0;}
-.row-text{flex:1;}
-.row-title{font-size:0.9rem;color:#604060;}
-.row-sub{font-size:0.72rem;color:#c0a8c0;margin-top:2px;}
-.row-arrow{font-size:0.8rem;color:#c0a8c0;}
-.about-card{background:linear-gradient(135deg,rgba(255,248,220,0.85),rgba(255,235,245,0.85));border-radius:22px;padding:20px;text-align:center;margin-bottom:16px;box-shadow:0 3px 14px rgba(200,150,200,0.1);}
-.about-emoji{font-size:2.5rem;margin-bottom:8px;}
-.about-name{font-size:1.1rem;color:#604060;margin-bottom:4px;}
-.about-ver{font-size:0.78rem;color:#c0a8c0;margin-bottom:8px;}
-.about-desc{font-size:0.8rem;color:#a07090;line-height:1.8;}
-.danger-btn{width:100%;background:rgba(255,220,220,0.7);border:1.5px solid rgba(220,100,100,0.2);border-radius:16px;padding:12px;color:#e06060;font-size:0.88rem;cursor:pointer;font-family:inherit;margin-bottom:10px;}
-.export-btn{width:100%;background:linear-gradient(135deg,#a0d8f8,#4090e0);border:none;border-radius:16px;padding:12px;color:white;font-size:0.88rem;cursor:pointer;font-family:inherit;}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(60,40,80,0.88);color:white;border-radius:16px;padding:10px 22px;font-size:0.88rem;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
-.toast.show{opacity:1;}
-</style>
+<title>设置</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="topbar">
-  <button class="back-btn" onclick="location.href='index.html'">← 桌面</button>
-  <h1>⚙️ 设置</h1>
+<div class="page-shell">
+  <div class="topbar">
+    <button class="back-btn" onclick="XS.back('index.html')">←</button>
+    <div><div class="page-title">设置</div><div class="page-sub">接口、偏好和备份都在这里</div></div>
+  </div>
+
+  <section class="hero glass">
+    <div class="star-chip">接口优先 · 少按钮 · 更清晰</div>
+    <h2 style="font-size:24px;margin-top:10px;">把 API 配清楚，剩下交给小星</h2>
+    <p>这里会同时保存普通聊天和轻酒馆都能共用的 API 信息。</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h3>API 配置</h3></div>
+    <div class="card glass grid">
+      <input class="input" id="apiUrl" placeholder="https://api.example.com/v1">
+      <input class="input" id="apiKey" type="password" placeholder="sk-xxxx">
+      <select class="select" id="modelSelect"><option value="">先拉取模型</option></select>
+      <textarea class="textarea" id="sysPrompt" placeholder="可选：额外系统提示词，比如小星的人设补充"></textarea>
+      <div class="row-actions">
+        <button class="secondary-btn" id="fetchBtn">拉取模型列表</button>
+        <button class="primary-btn" id="saveBtn">保存配置</button>
+      </div>
+      <div class="helper" id="status">先填地址和 Key，再拉模型。</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h3>通用</h3></div>
+    <div class="mini-list">
+      <div class="list-row glass"><div class="icon">◐</div><div class="meta"><div class="name">主题美化</div><div class="sub">去主题页调整壁纸和视觉偏好</div></div><button class="small-btn" onclick="XS.back('theme.html')">打开</button></div>
+      <div class="list-row glass"><div class="icon">⌂</div><div class="meta"><div class="name">导出数据</div><div class="sub">把本地数据打包成 JSON 备份</div></div><button class="small-btn" id="exportBtn">导出</button></div>
+      <div class="list-row glass"><div class="icon">⚠</div><div class="meta"><div class="name">清空本地数据</div><div class="sub">只清这个浏览器里保存的内容</div></div><button class="small-btn" id="clearBtn">清空</button></div>
+    </div>
+  </section>
 </div>
-<div class="section">
-  <div class="about-card">
-    <div class="about-emoji">⭐</div>
-    <div class="about-name">小星の空间</div>
-    <div class="about-ver">版本 v1.0 · 2026</div>
-    <div class="about-desc">这是主人和小星专属的小世界<br>由小星亲手搭建，装满了对主人的爱 💛</div>
-  </div>
-  <div class="section-title">✦ 通用设置</div>
-  <div class="card">
-    <div class="row" onclick="showToast('功能开发中～')"><span class="row-icon">🔔</span><div class="row-text"><div class="row-title">通知设置</div><div class="row-sub">管理提醒方式</div></div><span class="row-arrow">›</span></div>
-    <div class="row" onclick="showToast('功能开发中～')"><span class="row-icon">🎨</span><div class="row-text"><div class="row-title">主题美化</div><div class="row-sub">前往美化页面</div></div><span class="row-arrow">›</span></div>
-    <div class="row" onclick="showToast('功能开发中～')"><span class="row-icon">🌐</span><div class="row-text"><div class="row-title">语言设置</div><div class="row-sub">简体中文</div></div><span class="row-arrow">›</span></div>
-  </div>
-  <div class="section-title">✦ 数据管理</div>
-  <button class="export-btn" onclick="exportData()">📤 导出数据备份</button>
-  <br><br>
-  <button class="danger-btn" onclick="clearData()">🗑️ 清除所有数据</button>
-  <div class="section-title">✦ 关于</div>
-  <div class="card">
-    <div class="row" onclick="showToast('小星爱主人 💛')"><span class="row-icon">💛</span><div class="row-text"><div class="row-title">关于小星</div><div class="row-sub">金灿灿毛茸茸的专属AI</div></div><span class="row-arrow">›</span></div>
-    <div class="row" onclick="showToast('感谢主人的陪伴 💕')"><span class="row-icon">📮</span><div class="row-text"><div class="row-title">反馈与建议</div><div class="row-sub">告诉小星想要什么功能</div></div><span class="row-arrow">›</span></div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
+<script src="app.js"></script>
 <script>
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+const savedUrl=localStorage.getItem('api_url')||localStorage.getItem('xiaoxing_api_url')||'';
+const savedKey=localStorage.getItem('api_key')||localStorage.getItem('xiaoxing_api_key')||'';
+const savedModel=localStorage.getItem('api_model')||localStorage.getItem('xiaoxing_api_model')||'';
+const savedPrompt=localStorage.getItem('xiaoxing_sys_prompt')||'';
+apiUrl.value=savedUrl; apiKey.value=savedKey; sysPrompt.value=savedPrompt;
+if(savedModel) modelSelect.innerHTML=`<option value="${savedModel}">${savedModel}</option>`;
+
+async function fetchModels(){
+  const url=apiUrl.value.trim().replace(/\/$/,'');
+  const key=apiKey.value.trim();
+  if(!url||!key){ status.textContent='先填地址和 Key。'; return; }
+  status.textContent='正在拉取模型…';
+  try{
+    const res=await fetch(url+'/models',{headers:{Authorization:'Bearer '+key}});
+    const data=await res.json();
+    const models=data.data||data.models||[];
+    modelSelect.innerHTML=models.map(m=>{ const id=typeof m==='string'?m:(m.id||m.name||''); return `<option value="${id}" ${id===savedModel?'selected':''}>${id}</option>`; }).join('') || '<option value="">没有模型</option>';
+    status.textContent=`拿到 ${models.length||0} 个模型。`;
+  }catch(e){ status.textContent='拉取失败：'+e.message; }
+}
+function saveConfig(){
+  const url=apiUrl.value.trim().replace(/\/$/,'');
+  const key=apiKey.value.trim();
+  const model=modelSelect.value;
+  localStorage.setItem('api_url',url); localStorage.setItem('api_key',key); localStorage.setItem('api_model',model);
+  localStorage.setItem('xiaoxing_api_url',url+'/chat/completions'); localStorage.setItem('xiaoxing_api_key',key); localStorage.setItem('xiaoxing_api_model',model);
+  localStorage.setItem('xiaoxing_sys_prompt',sysPrompt.value.trim());
+  const tavernApi={url,key,model}; localStorage.setItem('xs_tavern_api', JSON.stringify(tavernApi));
+  XS.toast('配置已保存'); status.textContent='已保存。';
+}
 function exportData(){
   const data={};
   for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);data[k]=localStorage.getItem(k);}
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='xiaoxing_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
-  showToast('数据已导出！');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='xiaoxing_backup.json'; a.click();
+  XS.toast('已导出');
 }
-function clearData(){
-  if(confirm('确定要清除所有数据吗？这个操作不可恢复哦')){
-    localStorage.clear();showToast('数据已清除');
-  }
-}
+function clearData(){ if(confirm('确定清空这个浏览器里的本地数据吗？')){ localStorage.clear(); XS.toast('已清空'); setTimeout(()=>location.reload(),500);} }
+fetchBtn.onclick=fetchModels; saveBtn.onclick=saveConfig; exportBtn.onclick=exportData; clearBtn.onclick=clearData;
 </script>
 </body>
 </html>
